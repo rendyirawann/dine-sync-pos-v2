@@ -16,31 +16,30 @@
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-light-success border-0 shadow-sm h-100">
+                    <a href="javascript:void(0)" id="btn-show-hpp-detail" class="card bg-light-danger border-0 shadow-sm h-100 card-xl-stretch hoverable">
                         <div class="card-body p-6">
-                            <div class="fs-6 fw-semibold text-success mb-2">Estimasi Kas Kotor</div>
+                            <div class="fs-6 fw-semibold text-danger mb-2">Total HPP (Modal Bahan)</div>
                             <div class="fs-2hx fw-bold text-gray-800">Rp
-                                {{ number_format($summary['profit'], 0, ',', '.') }}</div>
+                                {{ number_format($summary['hpp'], 0, ',', '.') }}</div>
+                            <div class="text-danger fw-semibold fs-7 mt-1"><i class="ki-outline ki-information-5 text-danger fs-7"></i> Klik untuk rincian</div>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-light-danger border-0 shadow-sm h-100">
+                    <div class="card bg-light-warning border-0 shadow-sm h-100">
                         <div class="card-body p-6">
-                            <div class="fs-6 fw-semibold text-danger mb-2">Pengeluaran (Bulan Ini)</div>
+                            <div class="fs-6 fw-semibold text-warning mb-2">Operasional (Expenses)</div>
                             <div class="fs-2hx fw-bold text-gray-800">Rp
                                 {{ number_format($summary['expense'], 0, ',', '.') }}</div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-3">
-                    <div class="card bg-light-info border-0 shadow-sm h-100">
+                    <div class="card bg-light-success border-0 shadow-sm h-100">
                         <div class="card-body p-6">
-                            <div class="fs-6 fw-semibold text-info mb-2">Porsi Terjual</div>
-                            <div class="fs-2hx fw-bold text-gray-800">
-                                {{ number_format($summary['items_sold'], 0, ',', '.') }} <span
-                                    class="fs-4 text-muted">Porsi</span>
-                            </div>
+                            <div class="fs-6 fw-semibold text-success mb-2">Laba Bersih (Net Profit)</div>
+                            <div class="fs-2hx fw-bold text-gray-800">Rp
+                                {{ number_format($summary['net_profit'], 0, ',', '.') }}</div>
                         </div>
                     </div>
                 </div>
@@ -156,6 +155,38 @@
         </div>
     </div>
 
+    <!-- Modal Rincian HPP -->
+    <div class="modal fade" id="modal_hpp_detail" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="fw-bold">Rincian HPP (Bulan Ini)</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal">
+                        <i class="ki-outline ki-cross fs-1"></i>
+                    </div>
+                </div>
+                <div class="modal-body py-10 px-lg-17">
+                    <div class="table-responsive">
+                        <table class="table align-middle table-row-dashed fs-6 gy-5" id="table-hpp-detail">
+                            <thead>
+                                <tr class="text-start text-gray-400 fw-bold fs-7 text-uppercase gs-0">
+                                    <th>No</th>
+                                    <th>Invoice & Waktu</th>
+                                    <th>Rincian Menu & Bahan</th>
+                                    <th class="text-end">Total HPP</th>
+                                </tr>
+                            </thead>
+                            <tbody class="fw-semibold text-gray-600"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
@@ -239,6 +270,28 @@
 
             var chart = new ApexCharts(element, options);
             chart.render();
+
+            // JS untuk Modal Rincian HPP
+            let hppTable = null;
+            $('#btn-show-hpp-detail').click(function() {
+                $('#modal_hpp_detail').modal('show');
+                
+                if (!hppTable) {
+                    hppTable = $('#table-hpp-detail').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: "{{ route('dashboard.get-hpp-details') }}",
+                        columns: [
+                            {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
+                            {data: 'invoice_info', name: 'invoice_no'},
+                            {data: 'menu_breakdown', name: 'menu_breakdown', orderable: false},
+                            {data: 'total_hpp', name: 'total_hpp', className: 'text-end'}
+                        ]
+                    });
+                } else {
+                    hppTable.ajax.reload();
+                }
+            });
         });
     </script>
 @endpush

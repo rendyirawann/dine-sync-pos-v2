@@ -158,6 +158,21 @@
         </div>
     </div>
 
+    <!-- 🔥 NEW: Modal Recipe -->
+    <div class="modal fade" id="Modal_Ingredients_Data" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered mw-650px">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h2 class="fw-bold">Manajemen Resep / Bahan</h2>
+                    <div class="btn btn-icon btn-sm btn-active-icon-primary" data-bs-dismiss="modal"><i
+                            class="ki-outline ki-cross fs-1"></i></div>
+                </div>
+                <div class="modal-body pb-10" id="IngredientsRowModalBody">
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('stylesheets')
         <meta name="csrf-token" content="{{ csrf_token() }}" />
         <link rel="stylesheet" href="{{ URL::to('assets/plugins/custom/datatables/datatables.bundle.css') }}" />
@@ -222,7 +237,7 @@
                 $('#FormTambahModalID').on('submit', function(e) {
                     e.preventDefault();
                     $('.error-text').text('');
-                    $('#btn-add-data').prop('disabled', true).text('Menyimpan...');
+                    $('#btn-add-data').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...');
 
                     $.ajax({
                         url: "{{ route('menus.store') }}",
@@ -261,6 +276,17 @@
                     });
                 });
 
+                // 🔥 NEW: Recipe / Ingredients Handler
+                $('body').on('click', '.btn-ingredients', function() {
+                    let id = $(this).data('id');
+                    $('#IngredientsRowModalBody').html(
+                        '<div class="text-center py-10"><span class="spinner-border text-primary"></span></div>');
+                    $('#Modal_Ingredients_Data').modal('show');
+                    $.get("{{ url('admin/menus') }}/" + id + "/ingredients", function(res) {
+                        $('#IngredientsRowModalBody').html(res.html);
+                    });
+                });
+
                 // Buka Edit Data
                 $('body').on('click', '.btn-edit', function() {
                     let id = $(this).data('id');
@@ -282,7 +308,7 @@
                     let formData = new FormData(this);
                     formData.append('_method', 'PUT'); // Trick Laravel untuk file upload pakai PUT
 
-                    $('#btn-edit-data').prop('disabled', true).text('Menyimpan...');
+                    $('#btn-edit-data').prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span> Menyimpan...');
 
                     $.ajax({
                         url: "{{ url('admin') }}/menus/" + id,

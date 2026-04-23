@@ -33,7 +33,8 @@ class ItemSalesReportController extends Controller
                     'menus.discount_percent', // 🔥 TAMBAHAN: Ambil data diskon
                     'categories.name as category_name',
                     DB::raw('SUM(order_details.qty) as total_qty'),
-                    DB::raw('SUM(order_details.subtotal) as total_revenue')
+                    DB::raw('SUM(order_details.subtotal) as total_revenue'),
+                    DB::raw('SUM(order_details.hpp) as total_hpp')
                 )
                 ->groupBy('menus.id', 'menus.name', 'menus.discount_percent', 'categories.name');
 
@@ -51,6 +52,7 @@ class ItemSalesReportController extends Controller
             $summaryData = (clone $query)->get();
             $totalItemsSold = $summaryData->sum('total_qty');
             $totalRevenue = $summaryData->sum('total_revenue');
+            $totalHpp = $summaryData->sum('total_hpp');
 
             return DataTables::of($query)
                 ->addIndexColumn()
@@ -65,13 +67,17 @@ class ItemSalesReportController extends Controller
                 ->addColumn('total_qty', function ($row) {
                     return '<span class="fw-bold text-success fs-5">' . number_format($row->total_qty, 0, ',', '.') . '</span> Porsi';
                 })
+                ->addColumn('total_hpp', function ($row) {
+                    return '<span class="text-gray-600">Rp ' . number_format($row->total_hpp, 0, ',', '.') . '</span>';
+                })
                 ->addColumn('total_revenue', function ($row) {
                     return '<span class="fw-bold text-gray-800">Rp ' . number_format($row->total_revenue, 0, ',', '.') . '</span>';
                 })
                 // Data untuk Kotak Summary di atas Tabel
                 ->with('totalItemsSold', number_format($totalItemsSold, 0, ',', '.') . ' Porsi')
                 ->with('totalRevenue', 'Rp ' . number_format($totalRevenue, 0, ',', '.'))
-                ->rawColumns(['menu_name', 'category_name', 'total_qty', 'total_revenue'])
+                ->with('totalHpp', 'Rp ' . number_format($totalHpp, 0, ',', '.'))
+                ->rawColumns(['menu_name', 'category_name', 'total_qty', 'total_hpp', 'total_revenue'])
                 ->make(true);
         }
     }

@@ -9,9 +9,17 @@ use App\Models\OrderDetail;
 use Illuminate\Support\Facades\DB;
 use App\Events\CallQueueEvent;
 use Illuminate\Support\Facades\Cache;
+use App\Services\StockService;
 
 class KitchenController extends Controller
 {
+    protected $stockService;
+
+    public function __construct(StockService $stockService)
+    {
+        $this->stockService = $stockService;
+    }
+
     public function index()
     {
         // Tampilkan SEMUA pesanan yang belum selesai, tanpa filter tanggal.
@@ -39,18 +47,23 @@ class KitchenController extends Controller
             $detail = OrderDetail::findOrFail($request->detail_id);
             $detail->update(['status' => $request->status]);
 
-            $order = Order::findOrFail($detail->order_id);
+            // 🔥 Manual Batch Selection Support
+            $selections = $request->selections ?? []; // [ingredient_id => batch_id]
 
+            if (!$detail->is_stock_deducted && in_array($request->status, ['cooking', 'done'])) {
+                $this->stockService->deductMenuStock($detail, $selections);
+            }
+
+            $order = Order::findOrFail($detail->order_id);
+            // ... (rest of logic remains same)
             $totalItems = $order->details()->count();
             $doneItems = $order->details()->where('status', 'done')->count();
             $cookingItems = $order->details()->where('status', 'cooking')->count();
 
-            // 🔥 PERBAIKAN 2: Deteksi apakah ini menu terakhir yang diselesaikan
             $isFinished = false;
-
             if ($doneItems == $totalItems) {
                 $order->update(['order_status' => 'served']);
-                $isFinished = true; // Tandai bahwa tiket ini selesai 100%
+                $isFinished = true;
             } elseif ($cookingItems > 0 || $doneItems > 0) {
                 $order->update(['order_status' => 'cooking']);
             } else {
@@ -69,6 +82,50 @@ class KitchenController extends Controller
         }
     }
 
+    public function getRecipeDetails($detail_id)
+    {
+        $detail = OrderDetail::with(['menu.ingredients.ingredient'])->findOrFail($detail_id);
+        $recipes = [];
+
+        foreach ($detail->menu->ingredients as $recipe) {
+            $ingredient = $recipe->ingredient;
+            $batches = \App\Models\IngredientBatch::where('ingredient_id', $ingredient->id)
+                ->where('remaining_quantity', '>', 0)
+                ->orderByRaw('expiry_date ASC NULLS LAST')
+                ->get()
+                ->map(function($b) {
+                    $arrival = date('d/m/y', strtotime($b->created_at));
+                    $expiry = $b->expiry_date ? date('d/m/y', strtotime($b->expiry_date)) : 'N/A';
+                    
+                    return [
+                        'id' => $b->id,
+                        'supplier' => $b->supplier->name ?? 'Manual',
+                        'remaining' => $b->remaining_quantity,
+                        'expiry' => $expiry,
+                        'arrival' => $arrival,
+                        'label' => ($b->supplier->name ?? 'Manual') . " (Masuk: $arrival | Exp: $expiry) - Sisa: " . number_format($b->remaining_quantity, 2)
+                    ];
+                });
+
+            $recipes[] = [
+                'ingredient_id' => $ingredient->id,
+                'name' => $ingredient->name,
+                'needed' => $recipe->quantity * $detail->qty,
+                'unit' => $ingredient->unit,
+                'batches' => $batches,
+                'suggested_batch' => $batches->first()['id'] ?? null
+            ];
+        }
+
+        return response()->json([
+            'menu_name' => $detail->menu->name,
+            'qty' => $detail->qty,
+            'is_stock_deducted' => $detail->is_stock_deducted,
+            'recipes' => $recipes
+        ]);
+    }
+
+
     // FUNGSI BARU: Update semua item di dalam 1 Order sekaligus
     public function updateOrderStatus(Request $request)
     {
@@ -81,10 +138,24 @@ class KitchenController extends Controller
 
             if ($status == 'cooking') {
                 // Ubah semua yang 'pending' jadi 'cooking'
-                $order->details()->where('status', 'pending')->update(['status' => 'cooking']);
+                $pendingDetails = $order->details()->where('status', 'pending')->get();
+                foreach ($pendingDetails as $detail) {
+                    if (!$detail->is_stock_deducted) {
+                        $this->stockService->deductMenuStock($detail);
+                        $detail->update(['is_stock_deducted' => true]);
+                    }
+                    $detail->update(['status' => 'cooking']);
+                }
                 $order->update(['order_status' => 'cooking']);
             } elseif ($status == 'done') {
-                $order->details()->whereIn('status', ['pending', 'cooking'])->update(['status' => 'done']);
+                $undoneDetails = $order->details()->whereIn('status', ['pending', 'cooking'])->get();
+                foreach ($undoneDetails as $detail) {
+                    if (!$detail->is_stock_deducted) {
+                        $this->stockService->deductMenuStock($detail);
+                        $detail->update(['is_stock_deducted' => true]);
+                    }
+                    $detail->update(['status' => 'done']);
+                }
                 $order->update(['order_status' => 'served']);
                 $isFinished = true;
 

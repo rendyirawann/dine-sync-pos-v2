@@ -39,19 +39,25 @@
             </div>
 
             <div class="row g-5 mb-8">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="bg-light-primary rounded p-6 border border-primary border-dashed h-100">
                         <span class="fs-6 fw-semibold text-primary d-block mb-1">Total Nota Terjual</span>
                         <span class="fs-1 fw-bolder text-gray-900" id="summary-orders">0 Nota</span>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="bg-light-danger rounded p-6 border border-danger border-dashed h-100">
                         <span class="fs-6 fw-semibold text-danger d-block mb-1">Total Diskon / Promo</span>
                         <span class="fs-1 fw-bolder text-gray-900" id="summary-discount">Rp 0</span>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
+                    <div class="bg-light-warning rounded p-6 border border-warning border-dashed h-100">
+                        <span class="fs-6 fw-semibold text-warning d-block mb-1">Total Modal (HPP)</span>
+                        <span class="fs-1 fw-bolder text-gray-900" id="summary-hpp">Rp 0</span>
+                    </div>
+                </div>
+                <div class="col-md-3">
                     <div class="bg-light-success rounded p-6 border border-success border-dashed h-100">
                         <span class="fs-6 fw-semibold text-success d-block mb-1">Total Pendapatan Bersih</span>
                         <span class="fs-1 fw-bolder text-gray-900" id="summary-revenue">Rp 0</span>
@@ -71,6 +77,7 @@
                                     <th>Pelanggan / Meja</th>
                                     <th>Metode</th>
                                     <th class="text-end">Potongan Diskon</th>
+                                    <th class="text-end">HPP</th>
                                     <th class="text-end">Total Belanja</th>
                                 </tr>
                             </thead>
@@ -129,7 +136,8 @@
                         },
                         dataSrc: function(json) {
                             $('#summary-revenue').text(json.totalRevenue);
-                            $('#summary-discount').text(json.totalDiscount); // Tambahan untuk diskon
+                            $('#summary-discount').text(json.totalDiscount);
+                            $('#summary-hpp').text(json.totalHpp);
                             $('#summary-orders').text(json.totalOrders + ' Nota');
                             return json.data;
                         }
@@ -160,7 +168,13 @@
                             data: 'discount',
                             name: 'discount_amount',
                             className: 'text-end'
-                        }, // Kolom Diskon
+                        },
+                        {
+                            data: 'total_hpp',
+                            name: 'total_hpp',
+                            className: 'text-end',
+                            searchable: false
+                        },
                         {
                             data: 'grand_total',
                             name: 'grand_total',

@@ -42,7 +42,7 @@
             </div>
 
             <div class="row g-5 mb-8">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="bg-light-warning rounded p-6 border border-warning border-dashed d-flex align-items-center">
                         <i class="ki-outline ki-coffee fs-3x text-warning me-5"></i>
                         <div>
@@ -51,7 +51,16 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
+                    <div class="bg-light-danger rounded p-6 border border-danger border-dashed d-flex align-items-center">
+                        <i class="ki-outline ki-chart-line fs-3x text-danger me-5"></i>
+                        <div>
+                            <span class="fs-6 fw-semibold text-danger d-block mb-1">Total Modal (HPP)</span>
+                            <span class="fs-1 fw-bolder text-gray-900" id="summary-hpp">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
                     <div class="bg-light-success rounded p-6 border border-success border-dashed d-flex align-items-center">
                         <i class="ki-outline ki-wallet fs-3x text-success me-5"></i>
                         <div>
@@ -72,6 +81,7 @@
                                     <th>Nama Menu</th>
                                     <th>Kategori</th>
                                     <th class="text-center">Terjual (Porsi)</th>
+                                    <th class="text-end">Total HPP</th>
                                     <th class="text-end">Total Omzet</th>
                                 </tr>
                             </thead>
@@ -127,8 +137,9 @@
                             d.category_id = $('#category_id').val();
                         },
                         dataSrc: function(json) {
-                            $('#summary-qty').text(json.totalItemsSold);
-                            $('#summary-revenue').text(json.totalRevenue);
+                             $('#summary-qty').text(json.totalItemsSold);
+                             $('#summary-revenue').text(json.totalRevenue);
+                             $('#summary-hpp').text(json.totalHpp);
                             return json.data;
                         }
                     },
@@ -150,6 +161,11 @@
                             data: 'total_qty',
                             name: 'total_qty',
                             className: 'text-center'
+                        },
+                        {
+                            data: 'total_hpp',
+                            name: 'total_hpp',
+                            className: 'text-end'
                         },
                         {
                             data: 'total_revenue',

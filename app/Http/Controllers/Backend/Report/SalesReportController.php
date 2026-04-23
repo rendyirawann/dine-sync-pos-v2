@@ -37,6 +37,14 @@ class SalesReportController extends Controller
             $totalDiscount = (clone $query)->sum('discount_amount'); // Total Uang Promo Terpakai
             $totalOrders = (clone $query)->count();
 
+            // 🔥 TAMBAHAN: Hitung Total HPP
+            $totalHpp = \App\Models\OrderDetail::whereHas('order', function($q) use ($request) {
+                $q->where('payment_status', 'paid');
+                if ($request->start_date && $request->end_date) {
+                    $q->whereBetween('created_at', [$request->start_date . ' 00:00:00', $request->end_date . ' 23:59:59']);
+                }
+            })->sum('hpp');
+
             // Urutkan dari yang terbaru
             $query->orderBy('created_at', 'desc');
 
@@ -64,14 +72,20 @@ class SalesReportController extends Controller
                     }
                     return '<span class="text-muted">-</span>';
                 })
+                // 🔥 TAMBAHAN: Kolom HPP
+                ->addColumn('total_hpp', function ($row) {
+                    $hpp = $row->details->sum('hpp');
+                    return '<span class="text-gray-600">Rp ' . number_format($hpp, 0, ',', '.') . '</span>';
+                })
                 ->addColumn('grand_total', function ($row) {
                     return '<span class="fw-bold text-success fs-5">Rp ' . number_format($row->grand_total, 0, ',', '.') . '</span>';
                 })
                 // Kirim data tambahan ke frontend
                 ->with('totalRevenue', 'Rp ' . number_format($totalRevenue, 0, ',', '.'))
                 ->with('totalDiscount', 'Rp ' . number_format($totalDiscount, 0, ',', '.'))
+                ->with('totalHpp', 'Rp ' . number_format($totalHpp, 0, ',', '.'))
                 ->with('totalOrders', number_format($totalOrders, 0, ',', '.'))
-                ->rawColumns(['invoice', 'customer', 'payment_method', 'discount', 'grand_total'])
+                ->rawColumns(['invoice', 'customer', 'payment_method', 'discount', 'total_hpp', 'grand_total'])
                 ->make(true);
         }
     }

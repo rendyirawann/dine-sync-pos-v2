@@ -9,8 +9,10 @@ use App\Models\Order;
 use App\Models\OrderDetail;
 use App\Models\DailySalesTarget;
 use App\Models\Expense;
+use App\Models\StockMovement;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\Facades\DataTables;
 
 class DashboardAdminController extends Controller
 {
@@ -71,6 +73,11 @@ class DashboardAdminController extends Controller
             ->where('payment_status', 'paid')
             ->sum('grand_total');
 
+        $totalHpp = OrderDetail::whereHas('order', function ($q) use ($monthStart, $monthEnd) {
+            $q->whereBetween('created_at', [$monthStart, $monthEnd])
+                ->where('payment_status', 'paid');
+        })->sum('hpp');
+
         $expense = Expense::whereBetween('date', [$monthStart->format('Y-m-d'), $monthEnd->format('Y-m-d')])->sum('amount');
 
         $itemsSold = OrderDetail::whereHas('order', function ($q) use ($monthStart, $monthEnd) {
@@ -80,11 +87,70 @@ class DashboardAdminController extends Controller
 
         $summary = [
             'revenue'    => $revenue,
+            'hpp'        => $totalHpp,
             'expense'    => $expense,
             'items_sold' => $itemsSold,
-            'profit'     => $revenue - $expense
+            'gross_profit' => $revenue - $totalHpp,
+            'net_profit'   => $revenue - $totalHpp - $expense
         ];
 
         return view('backend.dashboard.index', compact('unavailableMenus', 'topProducts', 'chartData', 'summary'));
+    }
+
+    public function getHppDetails(Request $request)
+    {
+        if ($request->ajax()) {
+            $monthStart = Carbon::now()->startOfMonth();
+            $monthEnd = Carbon::now()->endOfMonth();
+
+            $query = Order::with(['details.menu'])
+                ->where('payment_status', 'paid')
+                ->whereBetween('created_at', [$monthStart, $monthEnd])
+                ->orderBy('created_at', 'desc');
+
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->addColumn('invoice_info', function ($row) {
+                    return '<div class="d-flex flex-column">' .
+                        '<span class="fw-bold text-primary">#' . $row->invoice_no . '</span>' .
+                        '<span class="text-muted fs-8">' . $row->created_at->format('d M Y H:i') . '</span>' .
+                        '<span class="badge badge-light-success fs-9 w-50px mt-1">' . strtoupper($row->payment_method) . '</span>' .
+                        '</div>';
+                })
+                ->addColumn('menu_breakdown', function ($row) {
+                    $html = '';
+                    foreach ($row->details as $detail) {
+                        $html .= '<div class="mb-4">';
+                        $html .= '<div class="fw-bold text-gray-800 fs-7">' . ($detail->menu->name ?? 'Menu Dihapus') . ' (' . $detail->qty . ' Porsi)</div>';
+
+                        // Ambil rincian bahan baku KHUSUS untuk porsi menu ini di nota ini
+                        $breakdown = StockMovement::join('ingredients', 'stock_movements.ingredient_id', '=', 'ingredients.id')
+                            ->where('stock_movements.order_detail_id', $detail->id)
+                            ->select(
+                                'ingredients.name as ing_name',
+                                'stock_movements.cost_total'
+                            )
+                            ->get();
+
+                        if ($breakdown->count() > 0) {
+                            $html .= '<div class="mt-1 ps-3 border-start border-gray-300">';
+                            foreach ($breakdown as $item) {
+                                if ($item->cost_total > 0) {
+                                    $html .= '<div class="text-muted fs-8"> - ' . $item->ing_name . ': <span class="text-gray-600 fw-semibold">Rp ' . number_format($item->cost_total, 0, ',', '.') . '</span></div>';
+                                }
+                            }
+                            $html .= '</div>';
+                        }
+                        $html .= '</div>';
+                    }
+                    return $html;
+                })
+                ->addColumn('total_hpp', function ($row) {
+                    $totalHpp = $row->details->sum('hpp');
+                    return '<span class="fw-bolder text-gray-800">Rp ' . number_format($totalHpp, 0, ',', '.') . '</span>';
+                })
+                ->rawColumns(['invoice_info', 'menu_breakdown', 'total_hpp'])
+                ->make(true);
+        }
     }
 }

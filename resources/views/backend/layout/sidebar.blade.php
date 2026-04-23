@@ -294,6 +294,55 @@
                     </div>
                     @endcan
 
+                    {{-- STOCK & INGREDIENTS: view_data_master --}}
+                    @can('view_data_master')
+                    <div class="col mb-4">
+                        <a href="{{ route('ingredients.index') }}"
+                            class="btn btn-icon btn-outline btn-bg-light btn-active-light-primary btn-flex flex-column flex-center w-lg-90px h-lg-90px w-70px h-70px border-gray-200"
+                            data-kt-button="true">
+                            <span class="mb-2">
+                                <i class="ki-outline ki-bucket fs-2x text-primary"></i>
+                            </span>
+                            <span class="fs-7 fw-bold text-center">Bahan</span>
+                        </a>
+                    </div>
+
+                    <div class="col mb-4">
+                        <a href="{{ route('suppliers.index') }}"
+                            class="btn btn-icon btn-outline btn-bg-light btn-active-light-info btn-flex flex-column flex-center w-lg-90px h-lg-90px w-70px h-70px border-gray-200"
+                            data-kt-button="true">
+                            <span class="mb-2">
+                                <i class="ki-outline ki-truck fs-2x text-info"></i>
+                            </span>
+                            <span class="fs-7 fw-bold">Supplier</span>
+                        </a>
+                    </div>
+                    @endcan
+
+                    {{-- FINANCE / STOCK IN: view_finance --}}
+                    @can('view_finance')
+                    <div class="col mb-4">
+                        <a href="{{ route('stocks.index') }}"
+                            class="btn btn-icon btn-outline btn-bg-light btn-active-light-success btn-flex flex-column flex-center w-lg-90px h-lg-90px w-70px h-70px border-gray-200"
+                            data-kt-button="true">
+                            <span class="mb-2">
+                                <i class="ki-outline ki-delivery fs-2x text-success"></i>
+                            </span>
+                            <span class="fs-7 fw-bold">Stok In</span>
+                        </a>
+                    </div>
+
+                    <div class="col mb-4">
+                        <a href="{{ route('stock-opname.index') }}"
+                            class="btn btn-icon btn-outline btn-bg-light btn-active-light-warning btn-flex flex-column flex-center w-lg-90px h-lg-90px w-70px h-70px border-gray-200"
+                            data-kt-button="true">
+                            <span class="mb-2">
+                                <i class="ki-outline ki-clipboard fs-2x text-warning"></i>
+                            </span>
+                            <span class="fs-7 fw-bold">Opname</span>
+                        </a>
+                    </div>
+                    @endcan
 
                 </div>{{-- END .row --}}
             </div>{{-- END .mb-6 --}}

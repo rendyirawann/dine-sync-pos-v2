@@ -13,7 +13,9 @@ class OrderDetail extends Model
         'price',
         'subtotal',
         'notes',
-        'status'
+        'status',
+        'is_stock_deducted',
+        'hpp'
     ];
 
     public function order()

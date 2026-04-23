@@ -25,6 +25,10 @@ use App\Http\Controllers\Backend\Master\CategoriesController;
 use App\Http\Controllers\Backend\Master\MenuController;
 use App\Http\Controllers\Backend\Master\PromoController;
 use App\Http\Controllers\Backend\Master\TableController;
+use App\Http\Controllers\Backend\Master\IngredientController;
+use App\Http\Controllers\Backend\Master\SupplierController;
+use App\Http\Controllers\Backend\Finance\StockController;
+use App\Http\Controllers\Backend\Finance\StockOpnameController;
 use App\Http\Controllers\Backend\QueueController;
 use App\Http\Controllers\Backend\Report\ItemSalesReportController;
 use App\Http\Controllers\Backend\Report\SalesReportController;
@@ -111,6 +115,7 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
 
     // --- DASHBOARD (accessible by ALL authenticated roles) ---
     Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard');
+    Route::get('/admin/dashboard/get-hpp-details', [DashboardAdminController::class, 'getHppDetails'])->name('dashboard.get-hpp-details');
 
     // --- MY ACCOUNT / PROFILE (accessible by ALL authenticated users) ---
     Route::get('/admin/my-account', [AccountController::class, 'index'])->name('account.index');
@@ -168,8 +173,9 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
     // ====================================================
     Route::middleware('can:view_kitchen')->group(function () {
         Route::get('/admin/kitchen', [KitchenController::class, 'index'])->name('kitchen.index');
-        Route::post('/admin/kitchen/update-status', [KitchenController::class, 'updateItemStatus'])->name('kitchen.update-status');
-        Route::post('/admin/kitchen/update-order-status', [KitchenController::class, 'updateOrderStatus'])->name('kitchen.update-order-status');
+        Route::post('/admin/kitchen/update-item', [KitchenController::class, 'updateItemStatus'])->name('kitchen.update-item');
+        Route::get('/admin/kitchen/recipe-details/{id}', [KitchenController::class, 'getRecipeDetails'])->name('kitchen.recipe-details');
+        Route::post('/admin/kitchen/update-order', [KitchenController::class, 'updateOrderStatus'])->name('kitchen.update-order');
         Route::post('/admin/kitchen/recall', [KitchenController::class, 'recallFood'])->name('kitchen.recall');
     });
 
@@ -202,6 +208,18 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
         Route::resource('/admin/promos', PromoController::class)
             ->except(['create', 'show'])
             ->names('promos');
+            
+        // Ingredients
+        Route::resource('/admin/ingredients', IngredientController::class);
+        Route::get('/admin/get-dataingredients', [IngredientController::class, 'getData'])->name('get-dataingredients');
+
+        // Suppliers
+        Route::resource('/admin/suppliers', SupplierController::class);
+        Route::get('/admin/get-datasuppliers', [SupplierController::class, 'getData'])->name('get-datasuppliers');
+
+        // Menu Ingredients (Recipes)
+        Route::get('/admin/menus/{id}/ingredients', [MenuController::class, 'ingredients'])->name('menus.ingredients');
+        Route::post('/admin/menus/{id}/ingredients', [MenuController::class, 'updateIngredients'])->name('menus.ingredients.update');
     });
 
     // ====================================================
@@ -212,6 +230,17 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
         Route::get('/admin/get-dataexpenses', [ExpenseController::class, 'getDataExpenses'])->name('get-dataexpenses');
         Route::post('/admin/set-daily-budget', [ExpenseController::class, 'setBudget'])->name('set-daily-budget');
         Route::get('/admin/get-databudgets', [ExpenseController::class, 'getDataBudgets'])->name('get-databudgets');
+        
+        // Stocks (FIFO Batches)
+        Route::resource('/admin/stocks', StockController::class);
+        Route::get('/admin/get-datastocks', [StockController::class, 'getData'])->name('get-datastocks');
+
+        // Stock Opname
+        Route::get('/admin/stock-opname', [StockOpnameController::class, 'index'])->name('stock-opname.index');
+        Route::get('/admin/get-datastock-opname', [StockOpnameController::class, 'getData'])->name('stock-opname.get-data');
+        Route::get('/admin/get-history-stock-opname', [StockOpnameController::class, 'getHistoryData'])->name('stock-opname.history-data');
+        Route::post('/admin/stock-opname', [StockOpnameController::class, 'store'])->name('stock-opname.store');
+        Route::get('/admin/stock-opname/pdf/{id}', [StockOpnameController::class, 'downloadPdf'])->name('stock-opname.pdf');
     });
 
     // ====================================================

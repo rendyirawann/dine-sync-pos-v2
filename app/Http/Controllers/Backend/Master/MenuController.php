@@ -50,7 +50,8 @@ class MenuController extends Controller
                     }
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<button class="btn btn-sm btn-icon btn-light-info btn-detail me-2" data-id="' . $row->id . '" title="Detail"><i class="ki-outline ki-eye fs-4"></i></button>';
+                    $btn = '<button class="btn btn-sm btn-icon btn-light-info btn-ingredients me-2" data-id="' . $row->id . '" title="Resep/Bahan"><i class="ki-outline ki-bucket fs-4"></i></button>';
+                    $btn .= '<button class="btn btn-sm btn-icon btn-light-info btn-detail me-2" data-id="' . $row->id . '" title="Detail"><i class="ki-outline ki-eye fs-4"></i></button>';
                     $btn .= '<button class="btn btn-sm btn-icon btn-light-primary btn-edit me-2" data-id="' . $row->id . '" title="Edit"><i class="ki-outline ki-pencil fs-4"></i></button>';
                     $btn .= '<button class="btn btn-sm btn-icon btn-light-danger btn-delete" data-id="' . $row->id . '" data-name="' . $row->name . '" title="Hapus"><i class="ki-outline ki-trash fs-4"></i></button>';
                     return $btn;
@@ -141,5 +142,38 @@ class MenuController extends Controller
         }
         $menu->delete();
         return response()->json(['success' => 'Menu berhasil dihapus!']);
+    }
+
+    // 🔥 NEW: Recipe Management
+    public function ingredients($id)
+    {
+        $menu = Menu::with('ingredients.ingredient')->findOrFail($id);
+        $allIngredients = \App\Models\Ingredient::orderBy('name', 'asc')->get();
+        $html = view('backend.master.menus.ingredients', compact('menu', 'allIngredients'))->render();
+        return response()->json(['html' => $html]);
+    }
+
+    public function updateIngredients(Request $request, $id)
+    {
+        $menu = Menu::findOrFail($id);
+        
+        \DB::transaction(function() use ($menu, $request) {
+            // Clear existing
+            $menu->ingredients()->delete();
+            
+            // Add new ones
+            if ($request->ingredients) {
+                foreach ($request->ingredients as $item) {
+                    if ($item['ingredient_id'] && $item['quantity'] > 0) {
+                        $menu->ingredients()->create([
+                            'ingredient_id' => $item['ingredient_id'],
+                            'quantity' => $item['quantity']
+                        ]);
+                    }
+                }
+            }
+        });
+
+        return response()->json(['success' => 'Resep/Bahan menu berhasil diperbarui!']);
     }
 }
