@@ -138,9 +138,9 @@
                                 value="{{ \Carbon\Carbon::today()->format('Y-m-d') }}" />
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="required fs-6 fw-semibold mb-2">Judul Pengeluaran</label>
-                            <input type="text" class="form-control" name="title"
-                                placeholder="Contoh: Beli Kopi, Bayar Listrik" />
+                            <label class="required fs-6 fw-semibold mb-2">Kategori Pengeluaran</label>
+                            <input type="text" class="form-control" name="category"
+                                placeholder="Contoh: Bahan Baku, Listrik, Gaji" />
                         </div>
                         <div class="fv-row mb-7">
                             <label class="required fs-6 fw-semibold mb-2">Nominal Uang Keluar</label>
@@ -151,8 +151,8 @@
                             </div>
                         </div>
                         <div class="fv-row mb-7">
-                            <label class="fs-6 fw-semibold mb-2">Keterangan / Deskripsi (Opsional)</label>
-                            <textarea class="form-control" name="description" rows="3" placeholder="Masukkan keterangan lebih lanjut"></textarea>
+                            <label class="fs-6 fw-semibold mb-2">Keterangan / Catatan (Opsional)</label>
+                            <textarea class="form-control" name="notes" rows="3" placeholder="Masukkan catatan lebih lanjut"></textarea>
                         </div>
                         <div class="text-center pt-15">
                             <button type="submit" class="btn btn-danger w-100" id="btn-add-data">Simpan
@@ -225,7 +225,7 @@
                         },
                         {
                             data: 'title',
-                            name: 'title'
+                            name: 'category'
                         },
                         {
                             data: 'amount',

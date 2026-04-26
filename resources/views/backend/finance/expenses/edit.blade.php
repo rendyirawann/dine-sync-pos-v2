@@ -4,8 +4,8 @@
     <input type="date" class="form-control" name="date" value="{{ $expense->date }}" />
 </div>
 <div class="fv-row mb-7">
-    <label class="required fs-6 fw-semibold mb-2">Judul Pengeluaran</label>
-    <input type="text" class="form-control" name="title" value="{{ $expense->title }}" />
+    <label class="required fs-6 fw-semibold mb-2">Kategori Pengeluaran</label>
+    <input type="text" class="form-control" name="category" value="{{ $expense->category }}" />
 </div>
 <div class="fv-row mb-7">
     <label class="required fs-6 fw-semibold mb-2">Nominal Uang Keluar</label>
@@ -16,6 +16,6 @@
     </div>
 </div>
 <div class="fv-row mb-7">
-    <label class="fs-6 fw-semibold mb-2">Keterangan / Deskripsi</label>
-    <textarea class="form-control" name="description" rows="3">{{ $expense->description }}</textarea>
+    <label class="fs-6 fw-semibold mb-2">Keterangan / Catatan</label>
+    <textarea class="form-control" name="notes" rows="3">{{ $expense->notes }}</textarea>
 </div>

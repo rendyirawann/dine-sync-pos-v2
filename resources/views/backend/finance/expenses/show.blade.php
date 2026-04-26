@@ -27,15 +27,15 @@
 
 <div class="row mb-7 border-top pt-5">
     <div class="col-lg-12">
-        <label class="fw-semibold text-muted fs-6 mb-1">Judul Transaksi</label>
-        <div class="fw-bold fs-4 text-gray-800">{{ $expense->title }}</div>
+        <label class="fw-semibold text-muted fs-6 mb-1">Kategori Pengeluaran</label>
+        <div class="fw-bold fs-4 text-gray-800">{{ $expense->category }}</div>
     </div>
 </div>
 
 <div class="row">
     <div class="col-lg-12">
-        <label class="fw-semibold text-muted fs-6 mb-1">Keterangan Lengkap</label>
+        <label class="fw-semibold text-muted fs-6 mb-1">Catatan Lengkap</label>
         <div class="fw-bold fs-6 text-gray-700 bg-light p-4 rounded" style="white-space: pre-wrap;">
-            {{ $expense->description ?? 'Tidak ada deskripsi.' }}</div>
+            {{ $expense->notes ?? 'Tidak ada catatan.' }}</div>
     </div>
 </div>

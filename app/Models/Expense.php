@@ -6,8 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Expense extends Model
 {
-    // UBAH: expense_date menjadi date
-    protected $fillable = ['date', 'title', 'description', 'amount', 'user_id'];
+    // UBAH: Mengikuti skema database (category, notes) dan menambahkan UUID
+    protected $fillable = ['uuid', 'date', 'category', 'notes', 'amount', 'user_id'];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) \Illuminate\Support\Str::uuid();
+            }
+        });
+    }
 
     public function user()
     {

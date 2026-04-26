@@ -75,8 +75,8 @@ class ExpenseController extends Controller
                     return '<span class="badge badge-light-primary fs-7">' . Carbon::parse($row->date)->translatedFormat('d M Y') . '</span>';
                 })
                 ->addColumn('title', function ($row) {
-                    return '<span class="fw-bold text-gray-800">' . $row->title . '</span><br>' .
-                        '<span class="text-muted fs-7">' . \Illuminate\Support\Str::limit($row->description, 40) . '</span>';
+                    return '<span class="fw-bold text-gray-800">' . $row->category . '</span><br>' .
+                        '<span class="text-muted fs-7">' . \Illuminate\Support\Str::limit($row->notes, 40) . '</span>';
                 })
                 ->addColumn('amount', function ($row) {
                     return '<span class="fw-bold text-danger">Rp ' . number_format($row->amount, 0, ',', '.') . '</span>';
@@ -104,26 +104,26 @@ class ExpenseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'date'         => 'required|date', // UBAH INI
-            'title'        => 'required|string|max:255',
-            'amount'       => 'required|numeric|min:0',
-            'description'  => 'nullable|string',
+            'date'     => 'required|date',
+            'category' => 'required|string|max:255',
+            'amount'   => 'required|numeric|min:0',
+            'notes'    => 'nullable|string',
         ]);
 
         try {
             DB::beginTransaction();
 
             $expense = Expense::create([
-                'date'         => $request->date, // UBAH INI
-                'title'        => $request->title,
-                'amount'       => $request->amount,
-                'description'  => $request->description,
-                'user_id'      => Auth::id(),
+                'date'     => $request->date,
+                'category' => $request->category,
+                'amount'   => $request->amount,
+                'notes'    => $request->notes,
+                'user_id'  => Auth::id(),
             ]);
 
             activity()->useLog('tambah pengeluaran')->causedBy(Auth::user())
                 ->withProperties(['ip' => $request->ip(), 'new' => $expense->toArray()])
-                ->log('Mencatat pengeluaran: ' . $expense->title);
+                ->log('Mencatat pengeluaran: ' . $expense->category);
 
             DB::commit();
             return response()->json(['success' => 'Pengeluaran berhasil dicatat!', 'judul' => 'Berhasil'], 201);
@@ -150,10 +150,10 @@ class ExpenseController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'date'         => 'required|date', // UBAH INI
-            'title'        => 'required|string|max:255',
-            'amount'       => 'required|numeric|min:0',
-            'description'  => 'nullable|string',
+            'date'     => 'required|date',
+            'category' => 'required|string|max:255',
+            'amount'   => 'required|numeric|min:0',
+            'notes'    => 'nullable|string',
         ]);
 
         try {
@@ -162,23 +162,23 @@ class ExpenseController extends Controller
             $expense = Expense::findOrFail($id);
             $oldData = $expense->toArray();
 
-            $expense = Expense::create([
-                'date'         => $request->date, // UBAH INI
-                'title'        => $request->title,
-                'amount'       => $request->amount,
-                'description'  => $request->description,
-                'user_id'      => Auth::id(),
+            $expense->update([
+                'date'     => $request->date,
+                'category' => $request->category,
+                'amount'   => $request->amount,
+                'notes'    => $request->notes,
+                'user_id'  => Auth::id(),
             ]);
 
             activity()->useLog('edit pengeluaran')->causedBy(Auth::user())
-                ->withProperties(['ip' => $request->ip(), 'old' => $oldData, 'new' => $expense->toArray()])
-                ->log('Mengubah pengeluaran: ' . $expense->title);
+                ->withProperties(['ip' => $request->ip(), 'old' => $oldData, 'new' => $expense->fresh()->toArray()])
+                ->log('Mengubah pengeluaran: ' . $expense->category);
 
             DB::commit();
             return response()->json(['success' => 'Pengeluaran berhasil diubah!', 'judul' => 'Berhasil']);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['error' => 'Terjadi kesalahan sistem.', 'judul' => 'Gagal'], 500);
+            return response()->json(['error' => 'Terjadi kesalahan sistem: ' . $e->getMessage(), 'judul' => 'Gagal'], 500);
         }
     }
 
@@ -193,7 +193,7 @@ class ExpenseController extends Controller
 
             activity()->useLog('hapus pengeluaran')->causedBy(Auth::user())
                 ->withProperties(['ip' => $request->ip(), 'old' => $oldData])
-                ->log('Menghapus pengeluaran: ' . $oldData['title']);
+                ->log('Menghapus pengeluaran: ' . $oldData['category']);
 
             DB::commit();
             return response()->json(['success' => 'Pengeluaran berhasil dihapus.', 'judul' => 'Berhasil']);
