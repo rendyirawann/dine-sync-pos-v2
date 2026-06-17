@@ -11,15 +11,8 @@ class SettingController extends Controller
     // Menampilkan form pengaturan (karena cuma 1 baris, kita buat otomatis jika kosong)
     public function index()
     {
-        $setting = Setting::first();
-
-        // Jika belum ada data sama sekali, buat 1 baris default
-        if (!$setting) {
-            $setting = Setting::create([
-                'store_name' => 'DineSync POS',
-                'tax_rate' => 10
-            ]);
-        }
+        // Per-tenant: ambil/buat baris setting milik tenant aktif.
+        $setting = Setting::forCurrentTenant();
 
         return view('backend.settings.index', compact('setting'));
     }
@@ -32,8 +25,8 @@ class SettingController extends Controller
             'tax_rate' => 'required|numeric|min:0|max:100',
         ]);
 
-        $setting = Setting::first();
-        $setting->update($request->all());
+        $setting = Setting::forCurrentTenant();
+        $setting->update($request->only(['store_name', 'address', 'phone', 'tax_rate']));
 
         return redirect()->back()->with('success', 'Pengaturan toko dan pajak berhasil diperbarui!');
     }

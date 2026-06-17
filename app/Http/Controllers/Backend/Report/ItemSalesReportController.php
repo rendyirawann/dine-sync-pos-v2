@@ -22,11 +22,18 @@ class ItemSalesReportController extends Controller
     public function getData(Request $request)
     {
         if ($request->ajax()) {
+            // Catatan multi-tenant: query ini SUDAH ter-scope karena dimulai dari
+            // OrderDetail (model ber-trait BelongsToTenant) -> global scope menambah
+            // WHERE order_details.tenant_id = <tenant>. Filter orders.tenant_id di bawah
+            // adalah lapisan kedua (defense-in-depth) jika ada join mentah.
+            $tenantId = app('tenant')->id();
+
             // Gabungkan order_details dengan orders, menus, dan categories
             $query = OrderDetail::join('orders', 'order_details.order_id', '=', 'orders.id')
                 ->join('menus', 'order_details.menu_id', '=', 'menus.id')
                 ->leftJoin('categories', 'menus.category_id', '=', 'categories.id')
                 ->where('orders.payment_status', 'paid')
+                ->when($tenantId, fn ($q) => $q->where('orders.tenant_id', $tenantId))
                 ->select(
                     'menus.id',
                     'menus.name as menu_name',
@@ -84,10 +91,13 @@ class ItemSalesReportController extends Controller
 
     public function print(Request $request)
     {
+        $tenantId = app('tenant')->id(); // lapisan kedua isolasi (lihat getData)
+
         $query = OrderDetail::join('orders', 'order_details.order_id', '=', 'orders.id')
             ->join('menus', 'order_details.menu_id', '=', 'menus.id')
             ->leftJoin('categories', 'menus.category_id', '=', 'categories.id')
             ->where('orders.payment_status', 'paid')
+            ->when($tenantId, fn ($q) => $q->where('orders.tenant_id', $tenantId))
             ->select(
                 'menus.name as menu_name',
                 'menus.discount_percent', // 🔥 TAMBAHAN

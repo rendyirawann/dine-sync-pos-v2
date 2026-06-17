@@ -140,7 +140,7 @@
                 '<span class="spinner-border spinner-border-sm me-3"></span>Mencetak...');
 
             $.ajax({
-                url: "{{ route('frontend.kiosk.take') }}",
+                url: "{{ route('frontend.kiosk.take', $tenant) }}",
                 method: "POST",
                 data: {
                     _token: '{{ csrf_token() }}',

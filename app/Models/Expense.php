@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tenancy\BelongsToTenant;
 
 class Expense extends Model
 {
+    use BelongsToTenant;
+
     // UBAH: Mengikuti skema database (category, notes) dan menambahkan UUID
     protected $fillable = ['uuid', 'date', 'category', 'notes', 'amount', 'user_id'];
 

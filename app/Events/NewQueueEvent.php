@@ -13,15 +13,18 @@ class NewQueueEvent implements ShouldBroadcastNow
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $timestamp;
+    public $tenantId;
 
-    public function __construct()
+    public function __construct($tenantId = null)
     {
+        $this->tenantId = $tenantId;
         $this->timestamp = now()->toDateTimeString();
     }
 
     public function broadcastOn()
     {
-        return new Channel('public-queue');
+        // Per-tenant: tiap UMKM punya channel sendiri -> kiosk/kasir tenant lain tidak ikut menerima.
+        return new Channel('public-queue.' . $this->tenantId);
     }
 
     public function broadcastAs()

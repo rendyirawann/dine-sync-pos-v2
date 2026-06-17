@@ -9,12 +9,13 @@ use Spatie\Permission\Traits\HasRoles;
 use Cog\Contracts\Ban\Bannable as BannableContract;
 use Cog\Laravel\Ban\Traits\Bannable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids; // 1. Ini penawar errornya
+use App\Tenancy\BelongsToTenant;
 
 class User extends Authenticatable implements BannableContract
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     // 2. Masukkan HasUuids ke dalam use
-    use HasFactory, Notifiable, HasRoles, Bannable, HasUuids;
+    use HasFactory, Notifiable, HasRoles, Bannable, HasUuids, BelongsToTenant;
 
     /**
      * The attributes that are mass assignable.
@@ -59,5 +60,16 @@ class User extends Authenticatable implements BannableContract
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * URL avatar, sudah ter-namespace per-tenant (tenants/{id}/user/avatar/...).
+     * Mengambil tenant aktif, atau tenant_id milik user itu sendiri (untuk superadmin).
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        $tid = app('tenant')->id() ?? $this->tenant_id;
+
+        return asset('storage/tenants/' . $tid . '/user/avatar/' . $this->avatar);
     }
 }

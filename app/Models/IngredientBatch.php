@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tenancy\BelongsToTenant;
 
 class IngredientBatch extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'ingredient_id',
         'supplier_id',

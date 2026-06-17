@@ -6,7 +6,7 @@
                 <div class="me-7 mb-4">
                     <div class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative">
                         @if ($data->avatar)
-                            <img src="{{ asset('storage/user/avatar/' . $data->avatar) }}" alt="image" />
+                            <img src="{{ $data->avatar_url }}" alt="image" />
                         @else
                             <div class="symbol-label fs-1 fw-bold bg-light-danger text-danger">
                                 {{ substr($data->name, 0, 1) }}

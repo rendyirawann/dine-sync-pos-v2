@@ -62,10 +62,12 @@ Route::any('/dine-sync-pos', function () {
 Route::get('/scan/{uuid}', [CustomerOrderController::class, 'scan'])->name('frontend.scan');
 Route::post('/scan/{uuid}', [CustomerOrderController::class, 'startOrder'])->name('frontend.scan.post');
 
-// --- KIOSK & TV DISPLAY ANTRIAN ---
-Route::get('/kiosk', [QueueController::class, 'kiosk'])->name('frontend.kiosk');
-Route::post('/kiosk/take', [QueueController::class, 'takeQueue'])->name('frontend.kiosk.take');
-Route::get('/display', [QueueController::class, 'display'])->name('frontend.display');
+// --- KIOSK & TV DISPLAY ANTRIAN (per-tenant) ---
+// {tenant} = slug atau id UMKM. Tiap UMKM punya URL kiosk/display sendiri,
+// mis. /kiosk/umkm-1 dan /display/umkm-1. IdentifyTenant me-resolve {tenant}.
+Route::get('/kiosk/{tenant}', [QueueController::class, 'kiosk'])->name('frontend.kiosk');
+Route::post('/kiosk/{tenant}/take', [QueueController::class, 'takeQueue'])->name('frontend.kiosk.take');
+Route::get('/display/{tenant}', [QueueController::class, 'display'])->name('frontend.display');
 
 // 🔥 PERBAIKAN: Ubah rute ini agar mengarah ke fungsi menu() di Controller
 Route::get('/menu/{uuid}', [CustomerOrderController::class, 'menu'])->name('frontend.menu');

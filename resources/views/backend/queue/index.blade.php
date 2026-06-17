@@ -87,8 +87,11 @@
                 enabledTransports: ['ws', 'wss'],
             });
 
+            // Channel per-tenant (id UMKM yang sedang login)
+            const tenantId = @json(app('tenant')->id());
+
             // 1. DENGARKAN JIKA ADA ANTRIAN BARU DARI KIOSK
-            echoClient.channel('public-queue')
+            echoClient.channel('public-queue.' + tenantId)
                 .listen('.new-queue', (e) => {
                     toastr.info("Ada antrian baru masuk dari Kiosk depan!", "Antrian Baru");
                     setTimeout(() => {
@@ -97,7 +100,7 @@
                 });
 
             // 2. DENGARKAN JIKA ADA PANGGILAN
-            echoClient.channel('public-display')
+            echoClient.channel('public-display.' + tenantId)
                 .listen('.call-event', (e) => {
                     setTimeout(() => {
                         location.reload();

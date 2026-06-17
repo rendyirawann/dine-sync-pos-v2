@@ -19,7 +19,7 @@
                 <img id="preview-image-before-upload" src="{{ asset('assets/media/svg/files/blank-image.svg') }}"
                     alt="preview image" />
             @else
-                <img id="preview-image-before-upload" src="{{ asset('storage/user/avatar/' . $user->avatar) }}"
+                <img id="preview-image-before-upload" src="{{ $user->avatar_url }}"
                     alt="preview image" />
             @endif
         </div>

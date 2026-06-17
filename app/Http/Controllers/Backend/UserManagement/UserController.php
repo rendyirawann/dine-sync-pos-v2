@@ -107,7 +107,7 @@ class UserController extends Controller implements HasMiddleware
                         return ' <div class="d-flex align-items-center">
                                         <div class="symbol symbol-45px me-5">
 
-                                                <img src="' . asset('storage/user/avatar/' . $row->avatar) . '" alt="' . $row->name . '"  />
+                                                <img src="' . $row->avatar_url . '" alt="' . $row->name . '"  />
 
                                         </div>
                                         <div class="d-flex flex-column">
@@ -314,7 +314,7 @@ class UserController extends Controller implements HasMiddleware
                 $filename = 'avatar-' . $data->id . '-' . time() . '.' . $extension;
 
                 Storage::disk('public')->putFileAs(
-                    'user/avatar/',
+                    app('tenant')->mediaDir('user/avatar'),
                     $file,
                     $filename
                 );
@@ -663,9 +663,11 @@ class UserController extends Controller implements HasMiddleware
 
             if ($request->hasFile('avatar')) {
 
+                $dir = app('tenant')->mediaDir('user/avatar');
+
                 // Hapus file lama
-                if ($data->avatar && Storage::disk('public')->exists('user/avatar/' . $data->avatar)) {
-                    Storage::disk('public')->delete('user/avatar/' . $data->avatar);
+                if ($data->avatar && Storage::disk('public')->exists($dir . '/' . $data->avatar)) {
+                    Storage::disk('public')->delete($dir . '/' . $data->avatar);
                 }
 
                 $file = $request->file('avatar');
@@ -676,7 +678,7 @@ class UserController extends Controller implements HasMiddleware
 
                 // Simpan file
                 Storage::disk('public')->putFileAs(
-                    'user/avatar/',
+                    $dir,
                     $file,
                     $filename
                 );
@@ -777,7 +779,7 @@ class UserController extends Controller implements HasMiddleware
             // HAPUS AVATAR JIKA ADA
             // ===============================
             if ($data->avatar) {
-                $avatarPath = 'user/avatar/' . $data->avatar;
+                $avatarPath = app('tenant')->mediaDir('user/avatar') . '/' . $data->avatar;
 
                 if (Storage::disk('public')->exists($avatarPath)) {
                     Storage::disk('public')->delete($avatarPath);
@@ -853,7 +855,7 @@ class UserController extends Controller implements HasMiddleware
                 foreach ($users as $user) {
                     if ($user->avatar) {
 
-                        $avatarPath = 'user/avatar/' . $user->avatar;
+                        $avatarPath = app('tenant')->mediaDir('user/avatar') . '/' . $user->avatar;
 
                         if (Storage::disk('public')->exists($avatarPath)) {
                             Storage::disk('public')->delete($avatarPath);

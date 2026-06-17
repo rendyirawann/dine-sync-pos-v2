@@ -65,7 +65,7 @@
                             @else
                                 <div
                                     class="symbol symbol-100px symbol-lg-160px symbol-fixed position-relative avatar-wrapper">
-                                    <img class="avatar-img" src="{{ asset('storage/user/avatar/' . Auth::user()->avatar) }}"
+                                    <img class="avatar-img" src="{{ Auth::user()->avatar_url }}"
                                         alt="avatar" />
                                     <div
                                         class="position-absolute translate-middle bottom-0 start-100 mb-6 bg-success rounded-circle border border-4 border-body h-20px w-20px">

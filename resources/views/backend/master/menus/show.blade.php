@@ -1,6 +1,6 @@
 <div class="text-center mb-9">
     @if ($menu->image)
-        <img src="{{ asset('storage/menus/' . $menu->image) }}" alt="Foto Menu" class="rounded mw-100 h-200px"
+        <img src="{{ $menu->image_url }}" alt="Foto Menu" class="rounded mw-100 h-200px"
             style="object-fit: cover; width: 100%;">
     @else
         <div class="d-flex align-items-center justify-content-center bg-light rounded h-200px w-100">

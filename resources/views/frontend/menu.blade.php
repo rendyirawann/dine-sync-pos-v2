@@ -277,7 +277,7 @@
                             <div class="badge-discount">-{{ $menu->discount_percent }}%</div>
                         @endif
 
-                        <img src="{{ $menu->image ? asset('storage/menus/' . $menu->image) : asset('assets/media/svg/files/blank-image.svg') }}"
+                        <img src="{{ $menu->image ? $menu->image_url : asset('assets/media/svg/files/blank-image.svg') }}"
                             class="menu-img" alt="Menu">
 
                         <div class="p-3 d-flex flex-column flex-grow-1">
@@ -292,7 +292,7 @@
                                     {{ number_format($finalPrice, 0, ',', '.') }}</div>
 
                                 <button class="btn btn-sm btn-light-primary w-100 py-2 fw-bold"
-                                    onclick="addToCart({{ $menu->id }}, '{{ addslashes($menu->name) }}', {{ $finalPrice }}, '{{ $menu->image ? asset('storage/menus/' . $menu->image) : asset('assets/media/svg/files/blank-image.svg') }}')">
+                                    onclick="addToCart({{ $menu->id }}, '{{ addslashes($menu->name) }}', {{ $finalPrice }}, '{{ $menu->image ? $menu->image_url : asset('assets/media/svg/files/blank-image.svg') }}')">
                                     + Tambah
                                 </button>
                             </div>
@@ -588,6 +588,28 @@
         $('#btnCheckout').click(function() {
             $('#modalCart').modal('hide');
 
+            // TRIAL: pembayaran online (Midtrans/QRIS) dinonaktifkan sementara.
+            // Pelanggan memesan, lalu membayar tunai di kasir (jalur 'pay_later').
+            Swal.fire({
+                title: 'Konfirmasi Pesanan',
+                text: 'Pesanan akan dikirim ke dapur. Pembayaran dilakukan di kasir.',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: '<i class="ki-outline ki-shop fs-4 me-2 text-white"></i> Pesan & Bayar di Kasir',
+                cancelButtonText: 'Batal',
+                customClass: {
+                    confirmButton: 'btn btn-success',
+                    cancelButton: 'btn btn-light'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    processCheckout('pay_later'); // Bayar di kasir (cash)
+                } else {
+                    $('#modalCart').modal('show');
+                }
+            });
+
+            /* TRIAL: aktifkan kembali blok ini saat Midtrans siap dipakai lagi.
             Swal.fire({
                 title: 'Pilih Metode Pembayaran',
                 text: 'Bagaimana Anda ingin menyelesaikan pembayaran ini?',
@@ -604,13 +626,14 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    processCheckout('midtrans'); // Bayar pakai HP
+                    processCheckout('midtrans');
                 } else if (result.isDenied) {
-                    processCheckout('pay_later'); // Bayar nanti di kasir
+                    processCheckout('pay_later');
                 } else {
                     $('#modalCart').modal('show');
                 }
             });
+            */
         });
 
         function processCheckout(paymentMethod) {

@@ -15,18 +15,20 @@ class CallQueueEvent implements ShouldBroadcastNow
     public $text_to_speak;
     public $display_data;
     public $type; // 'queue' atau 'food'
+    public $tenantId;
 
-    public function __construct($text_to_speak, $display_data, $type = 'queue')
+    public function __construct($text_to_speak, $display_data, $type = 'queue', $tenantId = null)
     {
         $this->text_to_speak = $text_to_speak;
         $this->display_data = $display_data;
         $this->type = $type;
+        $this->tenantId = $tenantId;
     }
 
-    // Channel public agar TV Display bisa mendengar tanpa harus login
+    // Channel public per-tenant agar TV Display tiap UMKM hanya mendengar panggilannya sendiri
     public function broadcastOn()
     {
-        return new Channel('public-display');
+        return new Channel('public-display.' . $this->tenantId);
     }
 
     public function broadcastAs()

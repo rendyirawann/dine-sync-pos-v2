@@ -25,7 +25,7 @@ class MenuController extends Controller
             return DataTables::of($data)
                 ->addIndexColumn()
                 ->addColumn('image_view', function ($row) {
-                    $imgUrl = $row->image ? asset('storage/menus/' . $row->image) : asset('assets/media/svg/files/blank-image.svg');
+                    $imgUrl = $row->image ? $row->image_url : asset('assets/media/svg/files/blank-image.svg');
                     return '<div class="symbol symbol-50px"><img src="' . $imgUrl . '" alt="foto" style="object-fit:cover;"/></div>';
                 })
                 ->addColumn('menu_info', function ($row) {
@@ -79,7 +79,7 @@ class MenuController extends Controller
         if ($request->hasFile('image')) {
             $file = $request->file('image');
             $filename = 'menu-' . time() . '.' . $file->getClientOriginalExtension();
-            Storage::disk('public')->putFileAs('menus', $file, $filename);
+            Storage::disk('public')->putFileAs(app('tenant')->mediaDir('menu'), $file, $filename);
             $data['image'] = $filename;
         }
 
@@ -119,13 +119,14 @@ class MenuController extends Controller
 
         // Proses Upload Image Baru jika ada
         if ($request->hasFile('image')) {
+            $dir = app('tenant')->mediaDir('menu');
             // Hapus gambar lama
-            if ($menu->image && Storage::disk('public')->exists('menus/' . $menu->image)) {
-                Storage::disk('public')->delete('menus/' . $menu->image);
+            if ($menu->image && Storage::disk('public')->exists($dir . '/' . $menu->image)) {
+                Storage::disk('public')->delete($dir . '/' . $menu->image);
             }
             $file = $request->file('image');
             $filename = 'menu-' . time() . '.' . $file->getClientOriginalExtension();
-            Storage::disk('public')->putFileAs('menus', $file, $filename);
+            Storage::disk('public')->putFileAs($dir, $file, $filename);
             $data['image'] = $filename;
         }
 
@@ -137,8 +138,9 @@ class MenuController extends Controller
     {
         $menu = Menu::findOrFail($id);
         // Hapus file gambar jika ada
-        if ($menu->image && Storage::disk('public')->exists('menus/' . $menu->image)) {
-            Storage::disk('public')->delete('menus/' . $menu->image);
+        $dir = app('tenant')->mediaDir('menu');
+        if ($menu->image && Storage::disk('public')->exists($dir . '/' . $menu->image)) {
+            Storage::disk('public')->delete($dir . '/' . $menu->image);
         }
         $menu->delete();
         return response()->json(['success' => 'Menu berhasil dihapus!']);

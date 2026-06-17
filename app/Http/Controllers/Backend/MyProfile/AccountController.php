@@ -100,9 +100,12 @@ class AccountController extends Controller
         // ===============================
         if ($request->hasFile('avatar')) {
 
+            // Folder avatar per-tenant
+            $dir = app('tenant')->mediaDir('user/avatar');
+
             // Hapus file lama
-            if ($user->avatar && Storage::disk('public')->exists('user/avatar/'.$user->avatar)) {
-                Storage::disk('public')->delete('user/avatar/'.$user->avatar);
+            if ($user->avatar && Storage::disk('public')->exists($dir.'/'.$user->avatar)) {
+                Storage::disk('public')->delete($dir.'/'.$user->avatar);
             }
 
             $file = $request->file('avatar');
@@ -113,7 +116,7 @@ class AccountController extends Controller
 
             // Simpan file
             Storage::disk('public')->putFileAs(
-                'user/avatar/',
+                $dir,
                 $file,
                 $filename
             );
@@ -164,7 +167,7 @@ class AccountController extends Controller
             'success' => 'Avatar berhasil diperbaharui.',
             'time' => $formattedTime,
             'judul' => 'Berhasil',
-            'avatar_url' => asset('storage/user/avatar/' . $user->avatar)
+            'avatar_url' => $user->avatar_url
         ], 201);
 
     } catch (\Exception $e) {

@@ -20,7 +20,7 @@
             </div>
         @else
             <div class="symbol symbol-125px symbol-125">
-                <img id="preview-image-before-upload" src="{{ asset('storage/user/avatar/' . $user->avatar) }}"
+                <img id="preview-image-before-upload" src="{{ $user->avatar_url }}"
                     alt="" />
             </div>
         @endif

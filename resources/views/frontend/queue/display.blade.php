@@ -383,7 +383,10 @@
                         enabledTransports: ['ws', 'wss'],
                     });
 
-                    echoClient.channel('public-display').listen('.call-event', (e) => {
+                    // Channel per-tenant: TV display ini hanya mendengar UMKM-nya sendiri.
+                    const tenantId = @json($tenantId);
+
+                    echoClient.channel('public-display.' + tenantId).listen('.call-event', (e) => {
                         console.log("🔊 Sinyal Panggilan:", e);
                         if (e.type === 'queue') {
                             const numberCalled = e.display_data.number;
@@ -401,7 +404,7 @@
                         }
                     });
 
-                    echoClient.channel('public-queue').listen('.new-queue', (e) => {
+                    echoClient.channel('public-queue.' + tenantId).listen('.new-queue', (e) => {
                         console.log("🆕 Antrian Baru dari Kiosk:", e);
                         refreshWaitingList();
                     });

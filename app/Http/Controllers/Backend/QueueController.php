@@ -13,12 +13,14 @@ use Carbon\Carbon;
 class QueueController extends Controller
 {
     // --- FRONTEND: HALAMAN KIOSK (Ambil Antrian) ---
-    public function kiosk()
+    // $tenant (slug/id) sudah di-resolve & di-set sebagai tenant aktif oleh IdentifyTenant.
+    public function kiosk($tenant)
     {
-        return view('frontend.queue.kiosk');
+        // $tenant diteruskan ke view untuk membentuk URL POST 'take' yang ber-tenant.
+        return view('frontend.queue.kiosk', ['tenant' => $tenant]);
     }
 
-    public function takeQueue(Request $request)
+    public function takeQueue(Request $request, $tenant)
     {
         $request->validate([
             'customer_name' => 'required|string|max:255',
@@ -48,10 +50,10 @@ class QueueController extends Controller
             'status' => 'waiting'
         ]);
 
-        // 🔥 TEMBAKKAN SINYAL KE KASIR BAHWA ADA ANTRIAN BARU!
+        // 🔥 TEMBAKKAN SINYAL KE KASIR BAHWA ADA ANTRIAN BARU! (channel per-tenant)
         // Gunakan try-catch agar tidak Error 500 jika Reverb mati
         try {
-            broadcast(new NewQueueEvent());
+            broadcast(new NewQueueEvent(app('tenant')->id()));
         } catch (\Exception $e) {
             \Log::error("Gagal Broadcast Antrian Baru: " . $e->getMessage());
         }
@@ -65,8 +67,10 @@ class QueueController extends Controller
     }
 
     // --- FRONTEND: HALAMAN TV DISPLAY ---
-    public function display()
+    // $tenant sudah di-resolve oleh IdentifyTenant -> query Queue/Setting otomatis ter-scope.
+    public function display($tenant)
     {
+        $tenantId = app('tenant')->id(); // dipakai untuk nama channel Echo per-tenant
         $today = \Carbon\Carbon::today();
 
         $lastA = Queue::whereDate('created_at', $today)->where('status', 'called')->where('queue_number', 'like', 'A%')->orderBy('updated_at', 'desc')->first();
@@ -79,7 +83,7 @@ class QueueController extends Controller
 
         $setting = \App\Models\Setting::first();
 
-        return view('frontend.queue.display', compact('lastA', 'lastB', 'lastC', 'waitingA', 'waitingB', 'waitingC', 'setting'));
+        return view('frontend.queue.display', compact('lastA', 'lastB', 'lastC', 'waitingA', 'waitingB', 'waitingC', 'setting', 'tenantId'));
     }
 
     public function index()
@@ -134,7 +138,7 @@ class QueueController extends Controller
 
         // Gunakan try-catch agar tidak Error 500 jika Reverb mati
         try {
-            broadcast(new CallQueueEvent($textToSpeak, $displayData, 'queue'));
+            broadcast(new CallQueueEvent($textToSpeak, $displayData, 'queue', app('tenant')->id()));
         } catch (\Exception $e) {
             \Log::error("Gagal Memanggil Antrian (Broadcast): " . $e->getMessage());
         }

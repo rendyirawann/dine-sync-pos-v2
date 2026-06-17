@@ -7,7 +7,7 @@
 @endphp
 
 <div class="card card-flush flex-row-fluid p-6 pb-5 mw-100 bg-hover-light cursor-pointer shadow-sm product-card-action position-relative"
-    onclick="addToCart({{ $menu->id }}, '{{ addslashes($menu->name) }}', {{ $finalPrice }}, '{{ $menu->image ? asset('storage/menus/' . $menu->image) : asset('assets/media/svg/files/blank-image.svg') }}')">
+    onclick="addToCart({{ $menu->id }}, '{{ addslashes($menu->name) }}', {{ $finalPrice }}, '{{ $menu->image ? $menu->image_url : asset('assets/media/svg/files/blank-image.svg') }}')">
 
     @if ($menu->discount_percent > 0)
         <span
@@ -15,7 +15,7 @@
     @endif
 
     <div class="card-body text-center p-0">
-        <img src="{{ $menu->image ? asset('storage/menus/' . $menu->image) : asset('assets/media/svg/files/blank-image.svg') }}"
+        <img src="{{ $menu->image ? $menu->image_url : asset('assets/media/svg/files/blank-image.svg') }}"
             class="rounded-3 mb-4 w-125px h-125px" style="object-fit: cover;" alt="Menu" />
 
         <div class="mb-2">

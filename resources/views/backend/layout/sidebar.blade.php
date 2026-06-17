@@ -12,7 +12,7 @@
             <div class="cursor-pointer position-relative symbol symbol-circle symbol-40px"
                 data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-attach="parent"
                 data-kt-menu-placement="bottom-end">
-                <img src="{{ asset('storage/user/avatar/' . Auth::user()->avatar) }}" alt="user" />
+                <img src="{{ Auth::user()->avatar_url }}" alt="user" />
                 <div class="position-absolute rounded-circle bg-success start-100 top-100 h-8px w-8px ms-n3 mt-n3">
                 </div>
             </div>
@@ -21,7 +21,7 @@
                 <div class="menu-item px-3">
                     <div class="menu-content d-flex align-items-center px-3">
                         <div class="symbol symbol-50px me-5">
-                            <img alt="Logo" src="{{ asset('storage/user/avatar/' . Auth::user()->avatar) }}" />
+                            <img alt="Logo" src="{{ Auth::user()->avatar_url }}" />
                         </div>
                         <div class="d-flex flex-column">
                             <div class="fw-bold d-flex align-items-center fs-5">{{ Auth::user()->name ?? 'User' }}

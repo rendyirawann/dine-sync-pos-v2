@@ -168,7 +168,7 @@ class KitchenController extends Controller
                             'name'   => $order->customer_name
                         ];
                         Cache::put('audio_cooldown', true, 15);
-                        broadcast(new CallQueueEvent($textToSpeak, $displayData, 'food'));
+                        broadcast(new CallQueueEvent($textToSpeak, $displayData, 'food', app('tenant')->id()));
                     } catch (\Exception $broadcastErr) {
                         // Broadcast gagal (Reverb tidak berjalan) — abaikan, status tetap tersimpan
                         \Log::warning('Kitchen broadcast failed: ' . $broadcastErr->getMessage());
@@ -208,7 +208,7 @@ class KitchenController extends Controller
                 'name'   => $order->customer_name
             ];
             Cache::put('audio_cooldown', true, 15);
-            broadcast(new CallQueueEvent($textToSpeak, $displayData, 'food'));
+            broadcast(new CallQueueEvent($textToSpeak, $displayData, 'food', app('tenant')->id()));
             return response()->json(['success' => true, 'message' => 'Memanggil ulang pesanan ' . $order->customer_name]);
         } catch (\Exception $e) {
             \Log::warning('Recall broadcast failed: ' . $e->getMessage());

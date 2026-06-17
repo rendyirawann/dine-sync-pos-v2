@@ -23,6 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         // 🔥 TAMBAHKAN BARIS INI (Agar logoutOtherDevices berfungsi)
         $middleware->web(append: [
             \Illuminate\Session\Middleware\AuthenticateSession::class,
+            // Multi-tenant: set tenant aktif tiap request (dari user login / UUID publik).
+            \App\Http\Middleware\IdentifyTenant::class,
         ]);
 
         // 🔥 TAMBAHKAN KODE INI UNTUK MENGECUALIKAN WEBHOOK MIDTRANS DARI CSRF

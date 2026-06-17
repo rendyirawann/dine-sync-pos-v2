@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str; // Jangan lupa import ini
+use App\Tenancy\BelongsToTenant;
 
 class Shift extends Model
 {
+    use BelongsToTenant;
+
     // Tambahkan 'uuid' di dalam fillable
     protected $fillable = [
         'uuid',

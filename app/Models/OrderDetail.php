@@ -3,9 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Tenancy\BelongsToTenant;
 
 class OrderDetail extends Model
 {
+    use BelongsToTenant;
+
     protected $fillable = [
         'order_id',
         'menu_id',

@@ -163,7 +163,8 @@
                         <select id="payment_method" class="form-select form-select-solid">
                             <option value="pay_later">🍽️ Bayar Nanti (Pay Later)</option>
                             <option value="cash">💵 Tunai (Cash)</option>
-                            <option value="midtrans">📱 QRIS / Transfer (Midtrans)</option>
+                            {{-- TRIAL: opsi Midtrans dinonaktifkan sementara. Aktifkan kembali saat siap. --}}
+                            {{-- <option value="midtrans">📱 QRIS / Transfer (Midtrans)</option> --}}
                         </select>
                     </div>
 
