@@ -266,6 +266,16 @@
                                     <span class="text-danger error-text password_confirmation_error_add"></span>
                                 </div>
                                 <div class="mb-5">
+                                    <label class="required fw-semibold fs-6 mb-5">Tenant (UMKM)</label>
+                                    <select class="form-control mb-3 mb-lg-0" name="tenant_id" id="tenant_id">
+                                        <option value="" selected disabled>Pilih UMKM</option>
+                                        @foreach ($tenants as $tenant)
+                                            <option value="{{ $tenant->id }}">{{ $tenant->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <span class="text-danger error-text tenant_id_error_add"></span>
+                                </div>
+                                <div class="mb-5">
                                     <label class="required fw-semibold fs-6 mb-5">Role</label>
                                     <select class="form-control mb-3 mb-lg-0" name="roles" id="roles">
                                         <option selected="selected" disabled>Pilih Role</option>

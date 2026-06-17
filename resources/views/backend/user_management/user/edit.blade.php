@@ -124,6 +124,20 @@
     <span class="text-danger error-text roles_error_edit"></span> <!--end::Input-->
 </div>
 
+<!--begin::Input group (Tenant)-->
+<div class="mb-7">
+    <label for="Edittenant_id" class="required fw-semibold fs-6 mb-2">Tenant (UMKM)</label>
+    <select class="form-control form-control-solid mb-3 mb-lg-0" name="tenant_id" id="Edittenant_id">
+        <option value="" disabled>Pilih UMKM</option>
+        @foreach ($tenants as $tenant)
+            <option value="{{ $tenant->id }}" {{ $user->tenant_id == $tenant->id ? 'selected' : '' }}>
+                {{ $tenant->name }}</option>
+        @endforeach
+    </select>
+    <span class="text-danger error-text tenant_id_error_edit"></span>
+</div>
+<!--end::Input group (Tenant)-->
+
 
 <!--end::Input group-->
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend\UserManagement;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Tenant;
 // use App\Models\Skpd;
 use Spatie\Permission\Models\Role;
 use DB;
@@ -57,7 +58,8 @@ class UserController extends Controller implements HasMiddleware
     {
         $roles = Role::orderBy('id', 'desc')
             ->get();
-        return view('backend.user_management.user.index', compact('roles'));
+        $tenants = Tenant::orderBy('name')->get();
+        return view('backend.user_management.user.index', compact('roles', 'tenants'));
     }
 
 
@@ -263,7 +265,10 @@ class UserController extends Controller implements HasMiddleware
             'password' => 'required|string|min:8|confirmed',
             'avatar'   => 'nullable|mimes:jpg,png,svg|max:2048',
             'roles'    => 'required',
+            'tenant_id' => 'required|exists:tenants,id',
         ], [
+            'tenant_id.required' => 'Tenant (UMKM) wajib dipilih',
+            'tenant_id.exists'   => 'Tenant (UMKM) tidak valid',
             'name.required'    => 'Nama Lengkap wajib diisi',
             'name.max'         => 'Nama Lengkap maksimal 255 karakter',
 
@@ -302,6 +307,12 @@ class UserController extends Controller implements HasMiddleware
         // Logika penyimpanan data
         try {
             \DB::beginTransaction();
+
+            // Tentukan tenant target: jika admin tenant (punya konteks) -> tenantnya sendiri;
+            // jika superadmin (tanpa konteks) -> ambil dari pilihan form. Set konteks supaya
+            // folder avatar & auto-fill tenant_id pakai tenant yang benar.
+            $targetTenantId = app('tenant')->has() ? app('tenant')->id() : $request->tenant_id;
+            app('tenant')->set($targetTenantId);
 
             $data = new User;
             // ===============================
@@ -612,6 +623,7 @@ class UserController extends Controller implements HasMiddleware
             // 'skpd' => $skpd,
             'userRole' => $user->getRoleNames()->toArray(),
             'roles' => Role::where('guard_name', '=', 'web')->select(['id', 'name'])->get(),
+            'tenants' => Tenant::orderBy('name')->get(),
         ])->render();
 
         return response()->json(['html' => $html]);
@@ -636,8 +648,11 @@ class UserController extends Controller implements HasMiddleware
             'password' => 'confirmed',
             'avatar' => 'nullable|mimes:jpg,png,svg|max:2048',
             'roles' => 'required',
+            'tenant_id' => 'required|exists:tenants,id',
             // 'skpd_id' => 'required',
         ], [
+            'tenant_id.required' => 'Tenant (UMKM) wajib dipilih',
+            'tenant_id.exists'   => 'Tenant (UMKM) tidak valid',
             'name.required' => 'Nama Lengkap wajib diisi',
             'name.max' => 'Nama Lengkap maksimal 255 karakter',
             'email.required' => 'Email wajib diisi',
@@ -660,6 +675,11 @@ class UserController extends Controller implements HasMiddleware
 
             $data = User::findOrFail($id);
             $oldData = $data->toArray();
+
+            // Tentukan tenant target (superadmin boleh memindah user ke UMKM lain).
+            $targetTenantId = app('tenant')->has() ? app('tenant')->id() : $request->tenant_id;
+            app('tenant')->set($targetTenantId);
+            $data->tenant_id = $targetTenantId; // update tidak punya hook creating, jadi set eksplisit
 
             if ($request->hasFile('avatar')) {
 

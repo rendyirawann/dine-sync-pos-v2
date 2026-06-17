@@ -205,6 +205,94 @@ class TenantIsolationTest extends TestCase
         $this->assertSame('public-display.' . $this->tenantB->id, $call->broadcastOn()->name);
     }
 
+    /** Buat tenant lewat TenantController otomatis provision owner (role admin) + settings, ter-scope benar. */
+    public function test_create_tenant_provisions_owner_and_settings(): void
+    {
+        \Spatie\Permission\Models\Role::findOrCreate('admin', 'web');
+
+        $resp = $this->withoutMiddleware()->post(route('tenants.store'), [
+            'name'           => 'Warung Baru',
+            'owner_name'     => 'Bu Sri',
+            'owner_email'    => 'busri@warung.test',
+            'owner_password' => 'rahasia123',
+        ]);
+        $resp->assertRedirect(route('tenants.index'));
+
+        $tenant = \App\Models\Tenant::where('name', 'Warung Baru')->firstOrFail();
+        $this->assertDatabaseHas('users', ['email' => 'busri@warung.test', 'tenant_id' => $tenant->id]);
+        $this->assertDatabaseHas('settings', ['tenant_id' => $tenant->id, 'store_name' => 'Warung Baru']);
+
+        $owner = User::where('email', 'busri@warung.test')->first();
+        $this->assertTrue($owner->hasRole('admin'));
+        $this->assertSame($tenant->id, $owner->tenant_id);
+    }
+
+    /** Hapus tenant ikut menghapus seluruh datanya (cascade per tenant_id). */
+    public function test_destroy_tenant_cascades_its_data(): void
+    {
+        $countMenusB = $this->manager->runFor($this->tenantB->id, fn () => Menu::count());
+        $this->assertSame(1, $countMenusB);
+
+        $this->withoutMiddleware()->delete(route('tenants.destroy', $this->tenantA->id))
+            ->assertRedirect(route('tenants.index'));
+
+        // Tenant A dan datanya hilang; Tenant B utuh.
+        $this->assertDatabaseMissing('tenants', ['id' => $this->tenantA->id]);
+        $this->assertSame(0, $this->manager->runFor($this->tenantA->id, fn () => Menu::count()));
+        $this->assertSame(1, $this->manager->runFor($this->tenantB->id, fn () => Menu::count()));
+    }
+
+    /** User Management: tenant_id user diambil dari pilihan form saat menambah. */
+    public function test_user_management_assigns_chosen_tenant_on_create(): void
+    {
+        \Spatie\Permission\Models\Role::findOrCreate('kasir', 'web');
+
+        $resp = $this->withoutMiddleware()->post(route('users.store'), [
+            'name'                  => 'Kasir Satu',
+            'username'              => 'kasir_satu',
+            'no_wa'                 => '081234567890',
+            'email'                 => 'kasirsatu@x.test',
+            'password'              => 'password1',
+            'password_confirmation' => 'password1',
+            'roles'                 => 'kasir',
+            'tenant_id'             => $this->tenantB->id,
+        ]);
+
+        $resp->assertSuccessful();
+        $this->assertDatabaseHas('users', [
+            'email'     => 'kasirsatu@x.test',
+            'tenant_id' => $this->tenantB->id,
+        ]);
+    }
+
+    /** User Management: superadmin bisa memindah user ke UMKM lain saat edit. */
+    public function test_user_management_can_move_user_to_another_tenant_on_update(): void
+    {
+        \Spatie\Permission\Models\Role::findOrCreate('kasir', 'web');
+
+        $user = $this->manager->runFor($this->tenantA->id, fn () => User::create([
+            'name'     => 'Pindah',
+            'username' => 'pindah',
+            'email'    => 'pindah@x.test',
+            'password' => 'password1',
+        ]));
+        $this->manager->forget();
+        $this->assertSame($this->tenantA->id, $user->tenant_id);
+
+        $resp = $this->withoutMiddleware()->put(route('users.update', $user->id), [
+            'name'      => 'Pindah',
+            'email'     => 'pindah@x.test',
+            'roles'     => 'kasir',
+            'tenant_id' => $this->tenantB->id,
+        ]);
+
+        $resp->assertSuccessful();
+        $this->assertDatabaseHas('users', [
+            'id'        => $user->id,
+            'tenant_id' => $this->tenantB->id,
+        ]);
+    }
+
     /** Superadmin (tenant_id NULL) tidak men-set tenant -> bisa lihat semua. */
     public function test_superadmin_without_tenant_sees_all_via_middleware(): void
     {

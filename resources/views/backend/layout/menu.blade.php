@@ -111,13 +111,21 @@
         @can('view_resources')
             <div data-kt-menu-trigger="{default: 'click', lg: 'hover'}" data-kt-menu-placement="bottom-start"
                 class="menu-item menu-lg-down-accordion menu-sub-lg-down-indention me-0 me-lg-2">
-                <span class="menu-link py-3  {{ request()->routeIs('users.index', 'roles.index') ? 'active ' : '' }}">
+                <span class="menu-link py-3  {{ request()->routeIs('tenants.index', 'users.index', 'roles.index') ? 'active ' : '' }}">
                     <span class="menu-title">Resources</span>
                     <span class="menu-arrow d-lg-none">
                     </span>
                 </span>
                 <div class="menu-sub menu-sub-lg-down-accordion menu-sub-lg-dropdown px-lg-2 py-lg-4 w-lg-210px">
 
+                    <div class="menu-item {{ request()->routeIs('tenants.index') ? 'here show ' : '' }}">
+                        <a class="menu-link py-3 " href="{{ route('tenants.index') }}">
+                            <span class="menu-icon">
+                                <i class="ki-outline ki-shop fs-2"></i>
+                            </span>
+                            <span class="menu-title">Tenant (UMKM)</span>
+                        </a>
+                    </div>
                     <div class="menu-item {{ request()->routeIs('users.index') ? 'here show ' : '' }}">
                         <a class="menu-link py-3 " href="{{ route('users.index') }}">
                             <span class="menu-icon">

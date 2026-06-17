@@ -33,6 +33,7 @@ use App\Http\Controllers\Backend\QueueController;
 use App\Http\Controllers\Backend\Report\ItemSalesReportController;
 use App\Http\Controllers\Backend\Report\SalesReportController;
 use App\Http\Controllers\Backend\SettingController;
+use App\Http\Controllers\Backend\TenantController;
 use App\Http\Controllers\Frontend\CustomerOrderController;
 
 /*
@@ -273,6 +274,13 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
         Route::resource('/admin/roles', RoleController::class);
         Route::get('/admin/get-datarole', [RoleController::class, 'getDataRoles'])->name('get-datarole');
         Route::post('/admin/roles/mass-delete', [RoleController::class, 'massDelete'])->name('roles.mass-delete');
+
+        // --- TENANT (UMKM) MANAGEMENT — superadmin only ---
+        Route::get('/admin/tenants', [TenantController::class, 'index'])->name('tenants.index');
+        Route::post('/admin/tenants', [TenantController::class, 'store'])->name('tenants.store');
+        Route::put('/admin/tenants/{tenant}', [TenantController::class, 'update'])->name('tenants.update');
+        Route::post('/admin/tenants/{tenant}/toggle', [TenantController::class, 'toggleActive'])->name('tenants.toggle');
+        Route::delete('/admin/tenants/{tenant}', [TenantController::class, 'destroy'])->name('tenants.destroy');
     });
 
     // ====================================================
