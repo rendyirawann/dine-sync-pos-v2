@@ -12,13 +12,12 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
-    // --- REGISTER ---
-    // Jika aplikasi perizinan tidak boleh daftar sendiri (hanya admin yg buat user),
-    // Abang bisa matikan (komentar) 2 baris route register di bawah ini.
-    Route::get('/admin/register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-
-    Route::post('register', [RegisteredUserController::class, 'store']);
+    // --- REGISTER (DIMATIKAN) ---
+    // Multi-tenant: tidak ada pendaftaran mandiri. Akun dibuat oleh superadmin
+    // lewat User Management / Tenant Management. View Breeze (register.blade.php)
+    // sudah dihapus karena memakai komponen yang tidak ada (penyebab view:cache error).
+    // Route::get('/admin/register', [RegisteredUserController::class, 'create'])->name('register');
+    // Route::post('register', [RegisteredUserController::class, 'store']);
 
     // --- LOGIN ---
     Route::get('/admin/login', [AuthenticatedSessionController::class, 'create'])
