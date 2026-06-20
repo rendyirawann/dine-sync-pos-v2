@@ -75,14 +75,17 @@
             // KONEKSI WEBSOCKET (REVERB)
             // ==========================================
             // 🔥 PERBAIKAN: Gunakan const echoClient agar tidak bentrok dengan bawaan Metronic
+            // Pakai config() (bukan env()) supaya tetap jalan setelah `php artisan config:cache`.
+            // Port/scheme auto: localhost -> 8080/ws, produksi -> 443/wss (di-proxy ke Reverb).
+            const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
             const echoClient = new Echo({
                 broadcaster: 'pusher',
-                key: "{{ env('REVERB_APP_KEY') }}",
+                key: "{{ config('services.reverb.key', 'error_key') }}",
                 cluster: "mt1", // 🔥 WAJIB DITAMBAHKAN UNTUK PUSHER.JS
                 wsHost: window.location.hostname,
-                wsPort: {{ env('REVERB_PORT', 8080) }},
-                wssPort: {{ env('REVERB_PORT', 8080) }},
-                forceTLS: false,
+                wsPort: isLocal ? 8080 : 443,
+                wssPort: isLocal ? 8080 : 443,
+                forceTLS: isLocal ? false : true,
                 disableStats: true,
                 enabledTransports: ['ws', 'wss'],
             });
