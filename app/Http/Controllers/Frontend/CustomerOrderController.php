@@ -158,11 +158,12 @@ class CustomerOrderController extends Controller
                 \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
                 \Midtrans\Config::$isSanitized = true;
                 \Midtrans\Config::$is3ds = true;
-                \Midtrans\Config::$overrideNotifUrl = 'https://omnificent-reena-intermeasurable.ngrok-free.dev/api/midtrans-webhook';
+                \Midtrans\Config::$overrideNotifUrl = 'https://beoulve-dev.biz.id/midtrans/notify';
 
                 $params = [
                     'transaction_details' => ['order_id' => $invoice_no, 'gross_amount' => (int) $grand_total],
-                    'customer_details' => ['first_name' => $customerName]
+                    'customer_details' => ['first_name' => $customerName],
+                    'callbacks' => ['finish' => route('frontend.success', $uuid)]
                 ];
 
                 $snapToken = \Midtrans\Snap::getSnapToken($params);

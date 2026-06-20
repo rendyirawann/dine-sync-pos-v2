@@ -197,7 +197,7 @@ class KasirController extends Controller
 
                 // 🔥 TAMBAHKAN BARIS SAKTI INI: 
                 // Memaksa Midtrans lapor ke Ngrok, mengabaikan bug Dashboard Sandbox
-                \Midtrans\Config::$overrideNotifUrl = 'https://omnificent-reena-intermeasurable.ngrok-free.dev/api/midtrans-webhook';
+                \Midtrans\Config::$overrideNotifUrl = 'https://beoulve-dev.biz.id/midtrans/notify';
 
                 $params = [
                     'transaction_details' => ['order_id' => $invoice_no, 'gross_amount' => (int) $grand_total],
@@ -235,7 +235,7 @@ class KasirController extends Controller
                 \Midtrans\Config::$is3ds = true;
 
                 // 🔥 TAMBAHKAN BARIS SAKTI INI JUGA:
-                \Midtrans\Config::$overrideNotifUrl = 'https://omnificent-reena-intermeasurable.ngrok-free.dev/api/midtrans-webhook';
+                \Midtrans\Config::$overrideNotifUrl = 'https://beoulve-dev.biz.id/midtrans/notify';
 
                 // TRIK JITU: Tambahkan suffix "-R" (Retry)
 
