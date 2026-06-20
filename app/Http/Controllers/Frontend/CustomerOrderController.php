@@ -120,7 +120,7 @@ class CustomerOrderController extends Controller
             $grand_total = $net_subtotal + $tax;
 
             // 2. Buat Nomor Invoice & Simpan Order
-            $invoice_no = 'INV-' . date('YmdHis') . rand(10, 99);
+            $invoice_no = 'DSV2-INV-' . date('YmdHis') . rand(10, 99);
             $payment_method = $request->payment_method; // 'pay_later' atau 'midtrans'
 
             $order = Order::create([

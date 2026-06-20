@@ -144,7 +144,7 @@ class KasirController extends Controller
             $tax = round($net_subtotal * ($tax_rate / 100));
             $grand_total = $net_subtotal + $tax;
 
-            $invoice_no = 'INV-' . date('YmdHis') . rand(10, 99);
+            $invoice_no = 'DSV2-INV-' . date('YmdHis') . rand(10, 99);
             $order = Order::create([
                 'invoice_no'     => $invoice_no,
                 'table_id'       => $request->table_id,
