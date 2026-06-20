@@ -173,9 +173,10 @@
                             </button>
                         </div>
 
-                        <!-- <div class="text-gray-500 text-center fw-semibold fs-6">Belum punya akun?
-                            <a href="{{ route('register') }}" class="link-primary">Daftar</a>
-                        </div> -->
+                        {{-- Registrasi mandiri dimatikan (multi-tenant: akun dibuat oleh superadmin via User/Tenant Management).
+                        <div class="text-gray-500 text-center fw-semibold fs-6">Belum punya akun?
+                            <a href="#" class="link-primary">Daftar</a>
+                        </div> --}}
                     </form>
 
                 </div>
