@@ -6,7 +6,8 @@
         <div id="kt_app_content_container" class="app-container container-xxl">
 
             <div class="row g-5 g-xl-10 mb-xl-10">
-                <div class="col-md-3">
+                @php($__hpp = config('features.hpp'))
+                <div class="col-md-{{ $__hpp ? '3' : '6' }}">
                     <div class="card bg-light-primary border-0 shadow-sm h-100">
                         <div class="card-body p-6">
                             <div class="fs-6 fw-semibold text-primary mb-2">Total Omzet (Bulan Ini)</div>
@@ -15,6 +16,7 @@
                         </div>
                     </div>
                 </div>
+                @if ($__hpp)
                 <div class="col-md-3">
                     <a href="javascript:void(0)" id="btn-show-hpp-detail" class="card bg-light-danger border-0 shadow-sm h-100 card-xl-stretch hoverable">
                         <div class="card-body p-6">
@@ -25,7 +27,8 @@
                         </div>
                     </a>
                 </div>
-                <div class="col-md-3">
+                @endif
+                <div class="col-md-{{ $__hpp ? '3' : '6' }}">
                     <div class="card bg-light-warning border-0 shadow-sm h-100">
                         <div class="card-body p-6">
                             <div class="fs-6 fw-semibold text-warning mb-2">Operasional (Expenses)</div>
@@ -34,6 +37,7 @@
                         </div>
                     </div>
                 </div>
+                @if ($__hpp)
                 <div class="col-md-3">
                     <div class="card bg-light-success border-0 shadow-sm h-100">
                         <div class="card-body p-6">
@@ -43,6 +47,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </div>
 
             <div class="row g-5 g-xl-10 mb-xl-10 mt-5">

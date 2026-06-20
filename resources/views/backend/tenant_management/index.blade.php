@@ -54,10 +54,14 @@
                                         <td>{{ $t->users_count }} user</td>
                                         <td>{{ $t->trial_ends_at ? $t->trial_ends_at->format('d M Y') : '-' }}</td>
                                         <td>
-                                            <a href="{{ url('/kiosk/' . $t->slug) }}" target="_blank"
-                                                class="badge badge-light-primary me-1">Kiosk</a>
-                                            <a href="{{ url('/display/' . $t->slug) }}" target="_blank"
-                                                class="badge badge-light-primary">Display</a>
+                                            @if (config('features.queue', true))
+                                                <a href="{{ url('/kiosk/' . $t->slug) }}" target="_blank"
+                                                    class="badge badge-light-primary me-1">Kiosk</a>
+                                                <a href="{{ url('/display/' . $t->slug) }}" target="_blank"
+                                                    class="badge badge-light-primary">Display</a>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
                                         </td>
                                         <td>
                                             @if ($t->is_active)

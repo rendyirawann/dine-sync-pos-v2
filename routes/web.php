@@ -60,22 +60,24 @@ Route::any('/dine-sync-pos', function () {
 
 
 // Rute publik tanpa login
-Route::get('/scan/{uuid}', [CustomerOrderController::class, 'scan'])->name('frontend.scan');
-Route::post('/scan/{uuid}', [CustomerOrderController::class, 'startOrder'])->name('frontend.scan.post');
+// ===== SELF-ORDER VIA QR (lite: dimatikan via feature:self_order) =====
+Route::middleware('feature:self_order')->group(function () {
+    Route::get('/scan/{uuid}', [CustomerOrderController::class, 'scan'])->name('frontend.scan');
+    Route::post('/scan/{uuid}', [CustomerOrderController::class, 'startOrder'])->name('frontend.scan.post');
+
+    Route::get('/menu/{uuid}', [CustomerOrderController::class, 'menu'])->name('frontend.menu');
+    Route::post('/menu/{uuid}/checkout', [CustomerOrderController::class, 'checkout'])->name('frontend.checkout');
+    Route::get('/order-success/{uuid}', [CustomerOrderController::class, 'success'])->name('frontend.success');
+});
 
 // --- KIOSK & TV DISPLAY ANTRIAN (per-tenant) ---
-// {tenant} = slug atau id UMKM. Tiap UMKM punya URL kiosk/display sendiri,
-// mis. /kiosk/umkm-1 dan /display/umkm-1. IdentifyTenant me-resolve {tenant}.
-Route::get('/kiosk/{tenant}', [QueueController::class, 'kiosk'])->name('frontend.kiosk');
-Route::post('/kiosk/{tenant}/take', [QueueController::class, 'takeQueue'])->name('frontend.kiosk.take');
-Route::get('/display/{tenant}', [QueueController::class, 'display'])->name('frontend.display');
-
-// 🔥 PERBAIKAN: Ubah rute ini agar mengarah ke fungsi menu() di Controller
-Route::get('/menu/{uuid}', [CustomerOrderController::class, 'menu'])->name('frontend.menu');
-
-// 🔥 TAMBAHKAN 2 BARIS INI:
-Route::post('/menu/{uuid}/checkout', [CustomerOrderController::class, 'checkout'])->name('frontend.checkout');
-Route::get('/order-success/{uuid}', [CustomerOrderController::class, 'success'])->name('frontend.success');
+// {tenant} = slug atau id UMKM. mis. /kiosk/umkm-1 dan /display/umkm-1.
+// ===== ANTRIAN/KIOSK/DISPLAY (lite: dimatikan via feature:queue) =====
+Route::middleware('feature:queue')->group(function () {
+    Route::get('/kiosk/{tenant}', [QueueController::class, 'kiosk'])->name('frontend.kiosk');
+    Route::post('/kiosk/{tenant}/take', [QueueController::class, 'takeQueue'])->name('frontend.kiosk.take');
+    Route::get('/display/{tenant}', [QueueController::class, 'display'])->name('frontend.display');
+});
 
 
 // --- TARUH DEBUG DISINI (DI LUAR MIDDLEWARE AUTH) ---
@@ -118,7 +120,7 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
 
     // --- DASHBOARD (accessible by ALL authenticated roles) ---
     Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('dashboard');
-    Route::get('/admin/dashboard/get-hpp-details', [DashboardAdminController::class, 'getHppDetails'])->name('dashboard.get-hpp-details');
+    Route::get('/admin/dashboard/get-hpp-details', [DashboardAdminController::class, 'getHppDetails'])->name('dashboard.get-hpp-details')->middleware('feature:hpp');
 
     // --- MY ACCOUNT / PROFILE (accessible by ALL authenticated users) ---
     Route::get('/admin/my-account', [AccountController::class, 'index'])->name('account.index');
@@ -185,7 +187,7 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
     // ====================================================
     // QUEUE: view_queue — All roles
     // ====================================================
-    Route::middleware('can:view_queue')->group(function () {
+    Route::middleware(['can:view_queue', 'feature:queue'])->group(function () {
         Route::get('/admin/queues', [QueueController::class, 'index'])->name('queues.index');
         Route::post('/admin/queues/call', [QueueController::class, 'callQueue'])->name('queues.call');
         Route::post('/admin/queues/status/{id}', [QueueController::class, 'updateStatus'])->name('queues.status');
@@ -203,7 +205,7 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
 
         Route::resource('/admin/tables', TableController::class);
         Route::get('/admin/get-datatables', [TableController::class, 'getDataTables'])->name('get-datatables');
-        Route::get('/admin/tables/{uuid}/print-qr', [TableController::class, 'printQr'])->name('tables.print-qr');
+        Route::get('/admin/tables/{uuid}/print-qr', [TableController::class, 'printQr'])->name('tables.print-qr')->middleware('feature:self_order');
 
         // Promos
         Route::get('/admin/promos/data', [PromoController::class, 'getData'])->name('promos.data');
@@ -212,17 +214,20 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
             ->except(['create', 'show'])
             ->names('promos');
             
-        // Ingredients
-        Route::resource('/admin/ingredients', IngredientController::class);
-        Route::get('/admin/get-dataingredients', [IngredientController::class, 'getData'])->name('get-dataingredients');
+        // ===== FITUR INVENTORY (lite: dimatikan via feature:inventory) =====
+        Route::middleware('feature:inventory')->group(function () {
+            // Ingredients
+            Route::resource('/admin/ingredients', IngredientController::class);
+            Route::get('/admin/get-dataingredients', [IngredientController::class, 'getData'])->name('get-dataingredients');
 
-        // Suppliers
-        Route::resource('/admin/suppliers', SupplierController::class);
-        Route::get('/admin/get-datasuppliers', [SupplierController::class, 'getData'])->name('get-datasuppliers');
+            // Suppliers
+            Route::resource('/admin/suppliers', SupplierController::class);
+            Route::get('/admin/get-datasuppliers', [SupplierController::class, 'getData'])->name('get-datasuppliers');
 
-        // Menu Ingredients (Recipes)
-        Route::get('/admin/menus/{id}/ingredients', [MenuController::class, 'ingredients'])->name('menus.ingredients');
-        Route::post('/admin/menus/{id}/ingredients', [MenuController::class, 'updateIngredients'])->name('menus.ingredients.update');
+            // Menu Ingredients (Recipes)
+            Route::get('/admin/menus/{id}/ingredients', [MenuController::class, 'ingredients'])->name('menus.ingredients');
+            Route::post('/admin/menus/{id}/ingredients', [MenuController::class, 'updateIngredients'])->name('menus.ingredients.update');
+        });
     });
 
     // ====================================================
@@ -234,16 +239,19 @@ Route::middleware(['auth', 'forbid-banned-user'])->group(function () {
         Route::post('/admin/set-daily-budget', [ExpenseController::class, 'setBudget'])->name('set-daily-budget');
         Route::get('/admin/get-databudgets', [ExpenseController::class, 'getDataBudgets'])->name('get-databudgets');
         
-        // Stocks (FIFO Batches)
-        Route::resource('/admin/stocks', StockController::class);
-        Route::get('/admin/get-datastocks', [StockController::class, 'getData'])->name('get-datastocks');
+        // ===== FITUR INVENTORY (lite: dimatikan via feature:inventory) =====
+        Route::middleware('feature:inventory')->group(function () {
+            // Stocks (FIFO Batches)
+            Route::resource('/admin/stocks', StockController::class);
+            Route::get('/admin/get-datastocks', [StockController::class, 'getData'])->name('get-datastocks');
 
-        // Stock Opname
-        Route::get('/admin/stock-opname', [StockOpnameController::class, 'index'])->name('stock-opname.index');
-        Route::get('/admin/get-datastock-opname', [StockOpnameController::class, 'getData'])->name('stock-opname.get-data');
-        Route::get('/admin/get-history-stock-opname', [StockOpnameController::class, 'getHistoryData'])->name('stock-opname.history-data');
-        Route::post('/admin/stock-opname', [StockOpnameController::class, 'store'])->name('stock-opname.store');
-        Route::get('/admin/stock-opname/pdf/{id}', [StockOpnameController::class, 'downloadPdf'])->name('stock-opname.pdf');
+            // Stock Opname
+            Route::get('/admin/stock-opname', [StockOpnameController::class, 'index'])->name('stock-opname.index');
+            Route::get('/admin/get-datastock-opname', [StockOpnameController::class, 'getData'])->name('stock-opname.get-data');
+            Route::get('/admin/get-history-stock-opname', [StockOpnameController::class, 'getHistoryData'])->name('stock-opname.history-data');
+            Route::post('/admin/stock-opname', [StockOpnameController::class, 'store'])->name('stock-opname.store');
+            Route::get('/admin/stock-opname/pdf/{id}', [StockOpnameController::class, 'downloadPdf'])->name('stock-opname.pdf');
+        });
     });
 
     // ====================================================

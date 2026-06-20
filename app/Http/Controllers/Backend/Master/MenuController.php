@@ -50,7 +50,11 @@ class MenuController extends Controller
                     }
                 })
                 ->addColumn('action', function ($row) {
-                    $btn = '<button class="btn btn-sm btn-icon btn-light-info btn-ingredients me-2" data-id="' . $row->id . '" title="Resep/Bahan"><i class="ki-outline ki-bucket fs-4"></i></button>';
+                    $btn = '';
+                    // Resep/Bahan hanya untuk versi dengan fitur inventory
+                    if (config('features.inventory')) {
+                        $btn .= '<button class="btn btn-sm btn-icon btn-light-info btn-ingredients me-2" data-id="' . $row->id . '" title="Resep/Bahan"><i class="ki-outline ki-bucket fs-4"></i></button>';
+                    }
                     $btn .= '<button class="btn btn-sm btn-icon btn-light-info btn-detail me-2" data-id="' . $row->id . '" title="Detail"><i class="ki-outline ki-eye fs-4"></i></button>';
                     $btn .= '<button class="btn btn-sm btn-icon btn-light-primary btn-edit me-2" data-id="' . $row->id . '" title="Edit"><i class="ki-outline ki-pencil fs-4"></i></button>';
                     $btn .= '<button class="btn btn-sm btn-icon btn-light-danger btn-delete" data-id="' . $row->id . '" data-name="' . $row->name . '" title="Hapus"><i class="ki-outline ki-trash fs-4"></i></button>';

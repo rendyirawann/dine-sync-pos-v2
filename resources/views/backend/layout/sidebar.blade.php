@@ -280,8 +280,9 @@
                     </div>
                     @endcan
 
-                    {{-- QUEUE: All roles --}}
+                    {{-- QUEUE: All roles (lite: disembunyikan via features.queue) --}}
                     @can('view_queue')
+                    @if (config('features.queue'))
                     <div class="col mb-4">
                         <a href="{{ route('queues.index') }}"
                             class="btn btn-icon btn-outline btn-bg-light btn-active-light-success btn-flex flex-column flex-center w-lg-90px h-lg-90px w-70px h-70px border-gray-200"
@@ -292,10 +293,12 @@
                             <span class="fs-7 fw-bold">Antrian</span>
                         </a>
                     </div>
+                    @endif
                     @endcan
 
-                    {{-- STOCK & INGREDIENTS: view_data_master --}}
+                    {{-- STOCK & INGREDIENTS: view_data_master (lite: disembunyikan via features.inventory) --}}
                     @can('view_data_master')
+                    @if (config('features.inventory'))
                     <div class="col mb-4">
                         <a href="{{ route('ingredients.index') }}"
                             class="btn btn-icon btn-outline btn-bg-light btn-active-light-primary btn-flex flex-column flex-center w-lg-90px h-lg-90px w-70px h-70px border-gray-200"
@@ -317,10 +320,12 @@
                             <span class="fs-7 fw-bold">Supplier</span>
                         </a>
                     </div>
+                    @endif
                     @endcan
 
-                    {{-- FINANCE / STOCK IN: view_finance --}}
+                    {{-- FINANCE / STOCK IN: view_finance (lite: Stok In & Opname disembunyikan via features.inventory) --}}
                     @can('view_finance')
+                    @if (config('features.inventory'))
                     <div class="col mb-4">
                         <a href="{{ route('stocks.index') }}"
                             class="btn btn-icon btn-outline btn-bg-light btn-active-light-success btn-flex flex-column flex-center w-lg-90px h-lg-90px w-70px h-70px border-gray-200"
@@ -342,6 +347,7 @@
                             <span class="fs-7 fw-bold">Opname</span>
                         </a>
                     </div>
+                    @endif
                     @endcan
 
                 </div>{{-- END .row --}}

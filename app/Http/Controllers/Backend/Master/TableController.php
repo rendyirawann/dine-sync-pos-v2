@@ -30,8 +30,11 @@ class TableController extends Controller
                     }
                 })
                 ->addColumn('action', function ($row) {
-                    // 🔥 PERBAIKAN: Ganti $row->id menjadi $row->uuid
-                    $btn = '<a href="' . route('tables.print-qr', $row->uuid) . '" target="_blank" class="btn btn-sm btn-icon btn-light-success me-2" title="Cetak QR Code"><i class="ki-outline ki-printer fs-4"></i></a>';
+                    $btn = '';
+                    // Tombol Cetak QR (self-order) hanya untuk versi dengan fitur self_order
+                    if (config('features.self_order')) {
+                        $btn .= '<a href="' . route('tables.print-qr', $row->uuid) . '" target="_blank" class="btn btn-sm btn-icon btn-light-success me-2" title="Cetak QR Code"><i class="ki-outline ki-printer fs-4"></i></a>';
+                    }
 
                     $btn .= '<button class="btn btn-sm btn-icon btn-light-info btn-detail me-2" data-id="' . $row->id . '" title="Detail"><i class="ki-outline ki-eye fs-4"></i></button>';
                     $btn .= '<button class="btn btn-sm btn-icon btn-light-primary btn-edit me-2" data-id="' . $row->id . '" title="Edit"><i class="ki-outline ki-pencil fs-4"></i></button>';

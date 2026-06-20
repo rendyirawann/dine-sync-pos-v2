@@ -51,12 +51,14 @@
                         <span class="fs-1 fw-bolder text-gray-900" id="summary-discount">Rp 0</span>
                     </div>
                 </div>
+                @if (config('features.hpp'))
                 <div class="col-md-3">
                     <div class="bg-light-warning rounded p-6 border border-warning border-dashed h-100">
                         <span class="fs-6 fw-semibold text-warning d-block mb-1">Total Modal (HPP)</span>
                         <span class="fs-1 fw-bolder text-gray-900" id="summary-hpp">Rp 0</span>
                     </div>
                 </div>
+                @endif
                 <div class="col-md-3">
                     <div class="bg-light-success rounded p-6 border border-success border-dashed h-100">
                         <span class="fs-6 fw-semibold text-success d-block mb-1">Total Pendapatan Bersih</span>
@@ -77,7 +79,9 @@
                                     <th>Pelanggan / Meja</th>
                                     <th>Metode</th>
                                     <th class="text-end">Potongan Diskon</th>
-                                    <th class="text-end">HPP</th>
+                                    @if (config('features.hpp'))
+                                        <th class="text-end">HPP</th>
+                                    @endif
                                     <th class="text-end">Total Belanja</th>
                                 </tr>
                             </thead>
@@ -169,12 +173,14 @@
                             name: 'discount_amount',
                             className: 'text-end'
                         },
+                        @if (config('features.hpp'))
                         {
                             data: 'total_hpp',
                             name: 'total_hpp',
                             className: 'text-end',
                             searchable: false
                         },
+                        @endif
                         {
                             data: 'grand_total',
                             name: 'grand_total',

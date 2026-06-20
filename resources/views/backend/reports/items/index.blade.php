@@ -51,6 +51,7 @@
                         </div>
                     </div>
                 </div>
+                @if (config('features.hpp'))
                 <div class="col-md-4">
                     <div class="bg-light-danger rounded p-6 border border-danger border-dashed d-flex align-items-center">
                         <i class="ki-outline ki-chart-line fs-3x text-danger me-5"></i>
@@ -60,6 +61,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
                 <div class="col-md-4">
                     <div class="bg-light-success rounded p-6 border border-success border-dashed d-flex align-items-center">
                         <i class="ki-outline ki-wallet fs-3x text-success me-5"></i>
@@ -81,7 +83,9 @@
                                     <th>Nama Menu</th>
                                     <th>Kategori</th>
                                     <th class="text-center">Terjual (Porsi)</th>
-                                    <th class="text-end">Total HPP</th>
+                                    @if (config('features.hpp'))
+                                        <th class="text-end">Total HPP</th>
+                                    @endif
                                     <th class="text-end">Total Omzet</th>
                                 </tr>
                             </thead>
@@ -162,11 +166,13 @@
                             name: 'total_qty',
                             className: 'text-center'
                         },
+                        @if (config('features.hpp'))
                         {
                             data: 'total_hpp',
                             name: 'total_hpp',
                             className: 'text-end'
                         },
+                        @endif
                         {
                             data: 'total_revenue',
                             name: 'total_revenue',
