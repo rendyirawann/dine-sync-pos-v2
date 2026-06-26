@@ -433,6 +433,7 @@
         // 4. Backup Auto Refresh (1 menit)
         setInterval(refreshWaitingList, 60000);
     </script>
+    @include('partials.dev-credit')
 </body>
 
 </html>
