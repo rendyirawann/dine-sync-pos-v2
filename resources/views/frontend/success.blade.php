@@ -79,6 +79,7 @@
         <a href="{{ route('frontend.scan', $table->uuid) }}"
             class="btn btn-light-primary fw-bold px-8 py-3 rounded-pill">Lihat Menu Lagi</a>
     </div>
+    @include('partials.dev-credit')
 </body>
 
 </html>

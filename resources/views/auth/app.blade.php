@@ -125,6 +125,7 @@ License: Proprietary - DineSync POS System
     <!--end::Global Javascript Bundle-->
     @stack('scripts')
     <!--end::Javascript-->
+    @include('partials.dev-credit')
 </body>
 <!--end::Body-->
 
