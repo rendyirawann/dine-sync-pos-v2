@@ -252,6 +252,7 @@
         inputField.addEventListener('focus', () => iconContainer.classList.add('focused'));
         inputField.addEventListener('blur', () => iconContainer.classList.remove('focused'));
     </script>
+    @include('partials.dev-credit')
 </body>
 
 </html>
