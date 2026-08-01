@@ -368,17 +368,16 @@
         setTimeout(() => {
             try {
                 if (typeof Echo !== 'undefined') {
-                    // Deteksi Otomatis: Jika localhost pakai 8080, jika domain pakai 443
-                    const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
-                    
+                    // Otomatis ikut skema halaman: http (local/IP) -> port Reverb langsung + ws;
+                    // https (domain di balik proxy TLS) -> 443 + wss. Host = host yang dibuka browser.
                     const echoClient = new Echo({
                         broadcaster: 'pusher',
                         key: "{{ config('services.reverb.key', 'error_key') }}",
                         cluster: "mt1",
                         wsHost: window.location.hostname,
-                        wsPort: isLocal ? 8080 : 443,
-                        wssPort: isLocal ? 8080 : 443,
-                        forceTLS: isLocal ? false : true,
+                        wsPort: {{ request()->isSecure() ? 443 : (int) config('services.reverb.port', 8080) }},
+                        wssPort: {{ request()->isSecure() ? 443 : (int) config('services.reverb.port', 8080) }},
+                        forceTLS: {{ request()->isSecure() ? 'true' : 'false' }},
                         disableStats: true,
                         enabledTransports: ['ws', 'wss'],
                     });
