@@ -22,10 +22,16 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Paksa HTTPS di Production/VPS agar tidak terjadi Mixed Content
+        // Kunci semua URL (route/url/asset/base-href) ke APP_URL di production.
+        // Ini yang MENJAGA subfolder (mis. /dine-sync-pos-v2) tidak hilang.
+        // PENTING: skema mengikuti APP_URL — hanya paksa https bila APP_URL memang https,
+        // supaya deploy di IP http (http://10.0.22.20/dine-sync-pos-v2) tidak rusak.
         if (config('app.env') === 'production') {
-            URL::forceRootUrl(config('app.url'));
-            URL::forceScheme('https');
+            $appUrl = (string) config('app.url');
+            URL::forceRootUrl($appUrl);
+            if (str_starts_with($appUrl, 'https://')) {
+                URL::forceScheme('https');
+            }
         }
 
         // Implicitly grant "Superadmin" role all permissions

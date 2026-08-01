@@ -76,16 +76,15 @@
             // ==========================================
             // 🔥 PERBAIKAN: Gunakan const echoClient agar tidak bentrok dengan bawaan Metronic
             // Pakai config() (bukan env()) supaya tetap jalan setelah `php artisan config:cache`.
-            // Port/scheme auto: localhost -> 8080/ws, produksi -> 443/wss (di-proxy ke Reverb).
-            const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+            // Otomatis ikut skema halaman: http (local/IP) -> port Reverb + ws; https -> 443 + wss.
             const echoClient = new Echo({
                 broadcaster: 'pusher',
                 key: "{{ config('services.reverb.key', 'error_key') }}",
                 cluster: "mt1", // 🔥 WAJIB DITAMBAHKAN UNTUK PUSHER.JS
                 wsHost: window.location.hostname,
-                wsPort: isLocal ? 8080 : 443,
-                wssPort: isLocal ? 8080 : 443,
-                forceTLS: isLocal ? false : true,
+                wsPort: {{ request()->isSecure() ? 443 : (int) config('services.reverb.port', 8080) }},
+                wssPort: {{ request()->isSecure() ? 443 : (int) config('services.reverb.port', 8080) }},
+                forceTLS: {{ request()->isSecure() ? 'true' : 'false' }},
                 disableStats: true,
                 enabledTransports: ['ws', 'wss'],
             });
