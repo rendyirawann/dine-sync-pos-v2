@@ -12,6 +12,28 @@ Dua project yang saling melengkapi:
 
 ---
 
+## 0. Jalan cepat — satu klik
+
+Dari root project jalankan **`start-dev.bat`**. Semua service dibuka dalam
+**SATU jendela Windows Terminal berisi 4 tab**, lalu Brave terbuka otomatis:
+
+| Tab | Service | Alamat |
+|-----|---------|--------|
+| `Web-8000` | Aplikasi web (dine-sync-pos-v2) | http://127.0.0.1:8000/admin/login |
+| `Reverb-8080` | WebSocket (antrian/dapur/TV) | ws://127.0.0.1:8080 |
+| `API-8001` | REST API mobile (dine-be) | http://127.0.0.1:8001/api/documentation |
+| `Mobile-8085` | Aplikasi Flutter (debug web di Brave) | http://127.0.0.1:8085 |
+
+- Tab **Mobile** butuh ~30–60 detik saat compile pertama; di tab itu `r` = hot reload, `R` = restart, `q` = keluar.
+- Hanya ingin menjalankan aplikasi mobile-nya saja (API sudah hidup)?
+  Jalankan **`mobile-dine/dine-fe/debug-web.bat`**.
+  Bisa diberi argumen: `debug-web.bat 9000 http://192.168.1.10:8001` (port & alamat API lain).
+- Bila Windows Terminal tidak ada, script otomatis membuka jendela CMD terpisah.
+- CORS sudah aktif di API (`Access-Control-Allow-Origin: *` untuk `/api/*`), jadi
+  Flutter web di port berbeda bisa memanggil API **tanpa proxy**.
+
+---
+
 ## 1. Arsitektur singkat
 
 ```
