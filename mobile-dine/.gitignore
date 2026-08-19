@@ -1,0 +1,42 @@
+# ==========================================================
+# Pengaman tambahan: mobile-dine berada DI DALAM repo web v2,
+# jadi pastikan artefak build & secret tidak pernah ter-commit.
+# (dine-be/.gitignore dan dine-fe/.gitignore tetap berlaku juga.)
+# ==========================================================
+
+# --- Laravel (dine-be) ---
+dine-be/vendor/
+dine-be/node_modules/
+dine-be/.env
+dine-be/.env.*
+!dine-be/.env.example
+dine-be/storage/logs/*.log
+dine-be/storage/framework/cache/data/*
+dine-be/storage/framework/sessions/*
+dine-be/storage/framework/views/*
+dine-be/bootstrap/cache/*.php
+dine-be/public/storage
+dine-be/.phpunit.result.cache
+# Dokumentasi Swagger hasil generate (dibuat ulang dengan `l5-swagger:generate`)
+dine-be/storage/api-docs/
+# Binary RoadRunner khusus platform — jangan di-commit
+dine-be/rr
+dine-be/rr.exe
+dine-be/.rr.yaml
+
+# --- Flutter (dine-fe) ---
+dine-fe/build
+dine-fe/.dart_tool/
+dine-fe/.flutter-plugins
+dine-fe/.flutter-plugins-dependencies
+dine-fe/android/.gradle/
+dine-fe/android/app/build/
+dine-fe/android/local.properties
+dine-fe/ios/Pods/
+dine-fe/ios/.symlinks/
+dine-fe/ios/Flutter/Flutter.framework
+dine-fe/ios/Flutter/Generated.xcconfig
+dine-fe/ios/Flutter/flutter_export_environment.sh
+dine-fe/web/build/
+*.iml
+.idea/

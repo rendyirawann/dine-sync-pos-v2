@@ -1,0 +1,52 @@
+name: dine_fe
+description: "DineSync POS — aplikasi mobile (Flutter). Ringan, responsif, murni konsumsi REST API dari dine-be."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # State management — ringan, aman-tipe, handling loading/error rapi (AsyncValue)
+  flutter_riverpod: ^2.6.1
+
+  # HTTP client + interceptor (token, error mapping)
+  dio: ^5.7.0
+
+  # Penyimpanan token yang aman (Keystore/Keychain)
+  flutter_secure_storage: ^9.2.2
+
+  # Preferensi ringan (tema, base url terakhir)
+  shared_preferences: ^2.3.3
+
+  # Navigasi deklaratif + guard auth
+  go_router: ^14.6.2
+
+  # Format Rupiah & tanggal Indonesia
+  intl: ^0.19.0
+
+  # Gambar menu/avatar dari server (dengan cache)
+  cached_network_image: ^3.4.1
+
+  # Grafik dashboard (omzet vs target)
+  fl_chart: ^0.69.2
+
+  # QR meja (tampilkan / cetak dari mobile)
+  qr_flutter: ^4.1.0
+
+  # Font Inter (sama seperti web)
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
