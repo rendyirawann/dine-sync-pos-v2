@@ -22,3 +22,7 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Binary RoadRunner (khusus platform, jangan di-commit)
+/rr
+.rr.yaml
